@@ -4,6 +4,7 @@ const API_URL = '';
 const form = document.getElementById('islandForm');
 const messageEl = document.getElementById('message');
 const codeInput = document.getElementById('code');
+const codeHint = document.getElementById('code-hint');
 
 // ── 언어 선택 ──
 document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -13,12 +14,26 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 // ── 코드 입력 실시간 필터링 ──
 const VALID_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXY0123456789';
 
+function showCodeHint(show) {
+    if (show) {
+        codeHint.textContent = t('codeInputHint');
+        codeHint.classList.add('visible');
+        codeInput.classList.add('input-error');
+    } else {
+        codeHint.classList.remove('visible');
+        codeInput.classList.remove('input-error');
+    }
+}
+
 codeInput.addEventListener('input', (e) => {
     let value = e.target.value.toUpperCase();
     let filtered = '';
+    let hadInvalid = false;
     for (const ch of value) {
         if (VALID_CODE_CHARS.includes(ch)) {
             filtered += ch;
+        } else {
+            hadInvalid = true;
         }
     }
     // 8자 초과 자르기
@@ -26,6 +41,14 @@ codeInput.addEventListener('input', (e) => {
         filtered = filtered.slice(0, 8);
     }
     e.target.value = filtered;
+
+    // 한글/잘못된 문자 입력 시 힌트 표시
+    if (hadInvalid) {
+        showCodeHint(true);
+        // 2초 후 자동 숨김
+        clearTimeout(codeHint._timer);
+        codeHint._timer = setTimeout(() => showCodeHint(false), 2000);
+    }
 });
 
 // ── 코드 입력 키다운 차단 ──
@@ -45,7 +68,15 @@ codeInput.addEventListener('keydown', (e) => {
     // 한글/특수문자/소문자 등 차단
     if (!VALID_CODE_CHARS.includes(ch)) {
         e.preventDefault();
+        showCodeHint(true);
+        clearTimeout(codeHint._timer);
+        codeHint._timer = setTimeout(() => showCodeHint(false), 2000);
     }
+});
+
+// 포커스 벗어나면 힌트 숨김
+codeInput.addEventListener('blur', () => {
+    showCodeHint(false);
 });
 
 // ── 폼 제출 ──
