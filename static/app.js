@@ -1,10 +1,16 @@
 const API_URL = '';
+const COOLDOWN_SECONDS = 30;
 
 // 폼 제출
 const form = document.getElementById('islandForm');
 const messageEl = document.getElementById('message');
 const codeInput = document.getElementById('code');
 const codeHint = document.getElementById('code-hint');
+
+// 쿨타임 상태
+let cooldownEndTime = 0;
+let cooldownInterval = null;
+let cooldownBanner = null;
 
 // ── 언어 선택 ──
 document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -96,6 +102,95 @@ codeInput.addEventListener('blur', () => {
     showCodeHint(false);
 });
 
+// ── 쿨타임 관리 ──
+function startCooldown() {
+    cooldownEndTime = Date.now() + COOLDOWN_SECONDS * 1000;
+    applyCooldownToCards();
+    showCooldownBanner();
+
+    if (cooldownInterval) clearInterval(cooldownInterval);
+    cooldownInterval = setInterval(() => {
+        const remaining = Math.ceil((cooldownEndTime - Date.now()) / 1000);
+        if (remaining <= 0) {
+            endCooldown();
+        } else {
+            updateCooldownBanner(remaining);
+        }
+    }, 1000);
+}
+
+function endCooldown() {
+    cooldownEndTime = 0;
+    if (cooldownInterval) {
+        clearInterval(cooldownInterval);
+        cooldownInterval = null;
+    }
+    removeCooldownFromCards();
+    hideCooldownBanner();
+}
+
+function isCooldownActive() {
+    return Date.now() < cooldownEndTime;
+}
+
+function applyCooldownToCards() {
+    document.querySelectorAll('.island-card').forEach(card => {
+        card.classList.add('cooldown');
+    });
+}
+
+function removeCooldownFromCards() {
+    document.querySelectorAll('.island-card').forEach(card => {
+        card.classList.remove('cooldown');
+    });
+}
+
+function showCooldownBanner() {
+    hideCooldownBanner();
+    cooldownBanner = document.createElement('div');
+    cooldownBanner.className = 'cooldown-banner';
+    cooldownBanner.textContent = `${t('cooldownMsg')}: ${COOLDOWN_SECONDS}s`;
+    document.body.appendChild(cooldownBanner);
+}
+
+function updateCooldownBanner(remaining) {
+    if (cooldownBanner) {
+        cooldownBanner.textContent = `${t('cooldownMsg')}: ${remaining}s`;
+    }
+}
+
+function hideCooldownBanner() {
+    if (cooldownBanner) {
+        cooldownBanner.remove();
+        cooldownBanner = null;
+    }
+}
+
+// ── 코드 클릭 핸들러 ──
+function handleCodeClick(e, code) {
+    e.stopPropagation();
+    const codeEl = e.currentTarget;
+
+    // 이미 공개된 코드면 클립보드 복사만
+    if (codeEl.classList.contains('revealed')) {
+        navigator.clipboard.writeText(code);
+        return;
+    }
+
+    // 쿨타임 중이면 무시
+    if (isCooldownActive()) {
+        return;
+    }
+
+    // 코드 공개
+    codeEl.classList.add('revealed');
+    codeEl.textContent = code;
+    navigator.clipboard.writeText(code);
+
+    // 쿨타임 시작
+    startCooldown();
+}
+
 // ── 폼 제출 ──
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -185,11 +280,16 @@ function renderIslands(data) {
             <div class="title">🏝️ ${escapeHtml(island.title)}</div>
             ${island.description ? `<div class="description">${escapeHtml(island.description)}</div>` : ''}
             <div class="meta">
-                <span class="code">${escapeHtml(island.code)}</span>
+                <span class="code" onclick="handleCodeClick(event, '${island.code}')">${escapeHtml(t('clickToReveal'))}</span>
                 <span class="timer" data-remaining="${island.remaining_seconds}">${t('remaining')}: ${island.remaining_seconds}${t('seconds')}</span>
             </div>
         </div>
     `).join('');
+
+    // 쿨타임 중이면 새로 렌더링된 카드에도 적용
+    if (isCooldownActive()) {
+        applyCooldownToCards();
+    }
 
     startCountdown();
 }

@@ -280,6 +280,42 @@ header p {
     letter-spacing: 1.5px;
     border: 1px solid #e0e0e0;
     word-break: break-all;
+    cursor: pointer;
+    filter: blur(6px);
+    transition: filter 0.2s;
+    user-select: none;
+}
+
+.island-card .code.revealed {
+    filter: blur(0);
+    user-select: text;
+}
+
+.island-card.cooldown {
+    filter: blur(3px);
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.cooldown-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    z-index: 1000;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
 .island-card .timer {
