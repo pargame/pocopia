@@ -226,7 +226,8 @@ function renderIslands(data) {
     } else if (filterMode === 'mine') {
         filtered = data;
     } else {
-        filtered = searchKeyword ? data.filter(i => i.title.toLowerCase().includes(searchKeyword.toLowerCase())) : data;
+        const base = data.filter(i => !i.is_pinned);
+        filtered = searchKeyword ? base.filter(i => i.title.toLowerCase().includes(searchKeyword.toLowerCase())) : base;
     }
     const cooling = isCooldownActive();
 
@@ -248,7 +249,9 @@ function renderIslands(data) {
             <div class="meta">
                 <span class="code ${revealed ? 'revealed' : ''}">${revealed ? esc(revealedCode) : ''}</span>
                 <button class="view-code-btn" data-island-id="${island.id}" ${revealed || cooling ? 'disabled' : ''}>${esc(t('viewCodeBtn'))}</button>
-                <span class="timer" data-id="${island.id}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
+                ${island.is_pinned
+                ? `<span class="timer pinned" data-id="${island.id}">${t('permanent')}</span>`
+                : `<span class="timer" data-id="${island.id}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>`}
             </div>
         </div>`;
     }).join('');
