@@ -163,7 +163,7 @@ const i18n = {
         infoAbuseDesc: "IPあたり最大2つの投稿。コード表示の30秒クールタイム。",
         infoPrivacy: "プライバシー",
         infoPrivacyDesc: "ログイン不要。IPアドレスは速度制限用のみで共有されません。",
-        infoContact: "お問い合わせ",
+        infoContact: "問い合わせ",
         infoContactDesc: "001201parg@gmail.com",
         deleteAllMine: "自分の投稿をすべて削除",
         deleteSuccess: "自分の投稿がすべて削除されました。",
