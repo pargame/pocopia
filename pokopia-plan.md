@@ -96,6 +96,8 @@ pocopia/
 ├── pyproject.toml      # 프로젝트 설정
 ├── uv.lock            # 의존성 lock
 ├── deploy.sh          # 배포 스크립트 (캐시 버스팅)
+├── scripts/           # 개발/운영 보조 스크립트
+│   └── pokopia.zsh    # zsh 서버 관리 alias
 ├── pokopia-plan.md    # 이 파일
 ├── DEVELOPMENT.md     # 개발 가이드
 ├── README.md          # 사용자용 소개
@@ -141,7 +143,7 @@ pocopia/
 | 2026-07-01 | 1.0 | 초기 계획서 |
 | 2026-07-01 | 1.1 | MVP 완료, uv 도입 |
 | 2026-07-02 | 2.0 | 운영 시작, 도메인 연결, 다국어, 캐시 버스팅, 보안 강화 |
-| 2026-07-02 | 2.1 | launchd 기반 백그라운드 실행, Safari 타이머 버그 수정, UI 다듬기, 문서 최신화 |
+| 2026-07-02 | 2.1 | launchd 기반 백그라운드 실행, Safari 타이머 버그 수정, UI 다듬기, 문서 최신화, zsh alias 파일 분리 |
 
 ---
 

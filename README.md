@@ -10,7 +10,14 @@
 
 ## 🖥️ 서버 관리 (zsh 단축 명령어)
 
-터미널에서 아래 명령어로 서버를 관리할 수 있습니다. macOS **LaunchAgent**로 등록되어 있어 노트북을 닫아도 서버가 유지되며, 재부팅 후에는 `pokopia-start`로 직접 시작합니다.
+아래 명령어는 `scripts/pokopia.zsh`에 정의되어 있습니다. `.zshrc`에서 `source`로 불러오거나, 내용을 직접 복사해서 사용하세요.
+
+```bash
+# .zshrc 맨 아래에 추가
+source /Users/pargame/repos/pocopia/scripts/pokopia.zsh
+```
+
+macOS **LaunchAgent**로 등록되어 있어 노트북을 닫아도 서버가 유지되며, 재부팅 후에는 `pokopia-start`로 직접 시작합니다.
 
 | 명령어 | 설명 |
 |--------|------|
@@ -137,6 +144,8 @@ pokopia/
 ├── uv.lock            # 의존성 lock
 ├── deploy.sh          # 캐시 버스팅 자동 배포 스크립트
 ├── gunicorn.log       # 서버 로그
+├── scripts/           # 개발/운영 보조 스크립트
+│   └── pokopia.zsh    # zsh 서버 관리 alias
 ├── .gitignore         # 보안: 민감 파일 제외
 ├── pokopia-plan.md    # 프로젝트 계획서
 ├── DEVELOPMENT.md     # 개발 가이드

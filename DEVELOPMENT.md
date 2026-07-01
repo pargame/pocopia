@@ -47,6 +47,8 @@ pocopia/
 ├── pyproject.toml      # uv 프로젝트 설정
 ├── uv.lock            # 의존성 lock
 ├── deploy.sh          # 캐시 버스팅 자동 배포 스크립트
+├── scripts/           # 개발/운영 보조 스크립트
+│   └── pokopia.zsh    # zsh 서버 관리 alias
 ├── pokopia-plan.md    # 프로젝트 계획서
 ├── DEVELOPMENT.md     # 이 파일
 ├── README.md          # 사용자용 소개
@@ -109,7 +111,9 @@ launchctl start gui/$(id -u)/com.pokopia.gunicorn
 launchctl bootout gui/$(id -u)/com.pokopia.gunicorn
 ```
 
-### zsh 단축 명령어 (`.zshrc`에 정의)
+### zsh 단축 명령어
+`scripts/pokopia.zsh`에 정의되어 있습니다. `.zshrc`에서 `source /Users/pargame/repos/pocopia/scripts/pokopia.zsh`로 불러오거나, 내용을 직접 복사해서 사용하세요.
+
 | 명령어 | 설명 |
 |--------|------|
 | `pokopia-start` | 서버 시작 (launchd) |
