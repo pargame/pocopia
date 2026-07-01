@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request, send_from_directory
 from datetime import datetime, timedelta, timezone
 import uuid
 import re
+import threading
+import time
 
 app = Flask(__name__, static_folder="static")
 
@@ -28,6 +30,16 @@ MAINTENANCE_MESSAGE = {
 
 def now_kst():
     return datetime.now(timezone(timedelta(hours=9)))
+
+
+def start_background_cleaner():
+    """1분마다 만료 게시물과 쿨다운을 정리하는 백그라운드 스레드"""
+    def cleaner():
+        while True:
+            time.sleep(60)
+            clean_expired()
+            clean_expired_cooldown()
+    threading.Thread(target=cleaner, daemon=True).start()
 
 
 def get_client_ip():
@@ -200,6 +212,10 @@ def index():
 @app.route("/<path:path>")
 def static_files(path):
     return send_from_directory("static", path)
+
+
+# ── 백그라운드 정리 스레드 시작 ──
+start_background_cleaner()
 
 
 if __name__ == "__main__":
