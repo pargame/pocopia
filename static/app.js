@@ -11,7 +11,9 @@ form.addEventListener('submit', async (e) => {
 
     const title = document.getElementById('title').value.trim();
     const description = document.getElementById('description').value.trim();
-    const code = document.getElementById('code').value.trim().toUpperCase();
+    const codeInput = document.getElementById('code');
+    const code = codeInput.value.trim().toUpperCase();
+    codeInput.value = code;  // 입력창도 대문자로 강제 변환
 
     try {
         const res = await fetch(`${API_URL}/islands`, {

@@ -64,8 +64,8 @@ def create_island():
         return jsonify({"error": "제목은 50자 이하여야 합니다."}), 400
     if len(description) > 200:
         return jsonify({"error": "설명은 200자 이하여야 합니다."}), 400
-    if not re.fullmatch(r"[A-Z0-9]{8}", code):
-        return jsonify({"error": "코드는 정확히 8자리의 알파벳 대문자 또는 숫자여야 합니다."}), 400
+    if not re.fullmatch(r"[A-HJ-NP-Y0-9]{8}", code):
+        return jsonify({"error": "코드는 정확히 8자리의 Z, I, O를 제외한 알파벳 대문자 또는 숫자여야 합니다."}), 400
 
     island_id = str(uuid.uuid4())[:8]
     now = now_kst()
