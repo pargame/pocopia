@@ -1,29 +1,39 @@
 # ── Pokopia 서버 관리 zsh alias ──
 # 사용법: ~/.zshrc 맨 아래에 아래 한 줄 추가
 # source /Users/pargame/repos/pocopia/scripts/pokopia.zsh
-#
-# 필요조건: macOS LaunchAgent가 등록되어 있어야 함
-#   launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
 
-pokopia-start() {
-    if launchctl print gui/$(id -u)/com.pokopia.gunicorn 2>/dev/null | grep -q "state = running"; then
-        echo "[Pokopia] 이미 실행 중입니다"
-        return 1
-    fi
+_pokopia_gunicorn_start() {
     if ! launchctl print gui/$(id -u)/com.pokopia.gunicorn 2>/dev/null | grep -q "path ="; then
         launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
     fi
     launchctl start gui/$(id -u)/com.pokopia.gunicorn
-    echo "[Pokopia] 서버 시작됨 → https://pokoclouds.com"
+}
+
+_pokopia_gunicorn_stop() {
+    launchctl bootout gui/$(id -u)/com.pokopia.gunicorn 2>/dev/null || true
+}
+
+_pokopia_tunnel_start() {
+    if ! launchctl print gui/$(id -u)/com.pokopia.cloudflared 2>/dev/null | grep -q "path ="; then
+        launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.cloudflared.plist
+    fi
+    launchctl start gui/$(id -u)/com.pokopia.cloudflared
+}
+
+_pokopia_tunnel_stop() {
+    launchctl bootout gui/$(id -u)/com.pokopia.cloudflared 2>/dev/null || true
+}
+
+pokopia-start() {
+    _pokopia_gunicorn_start
+    _pokopia_tunnel_start
+    echo "[Pokopia] 서버와 Tunnel 시작됨 → https://pokoclouds.com"
 }
 
 pokopia-stop() {
-    if ! launchctl print gui/$(id -u)/com.pokopia.gunicorn 2>/dev/null | grep -q "state = running"; then
-        echo "[Pokopia] 실행 중인 서버가 없습니다"
-        return 1
-    fi
-    launchctl bootout gui/$(id -u)/com.pokopia.gunicorn
-    echo "[Pokopia] 서버 종료됨"
+    _pokopia_gunicorn_stop
+    _pokopia_tunnel_stop
+    echo "[Pokopia] 서버와 Tunnel 종료됨"
 }
 
 pokopia-alert() {
@@ -54,21 +64,6 @@ pokopia-alert-off() {
         echo "[Pokopia] 실패 (HTTP $code)"
         return 1
     fi
-}
-
-pokopia-tunnel-start() {
-    launchctl start gui/$(id -u)/com.pokopia.cloudflared
-    echo "[Pokopia] Tunnel 시작됨"
-}
-
-pokopia-tunnel-stop() {
-    launchctl bootout gui/$(id -u)/com.pokopia.cloudflared
-    echo "[Pokopia] Tunnel 종료됨"
-}
-
-pokopia-tunnel-status() {
-    echo "[Pokopia] Tunnel 상태:"
-    launchctl print gui/$(id -u)/com.pokopia.cloudflared 2>/dev/null | grep -E "state =|path =" || echo "  중지됨"
 }
 
 pokopia-status() {

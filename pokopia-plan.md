@@ -146,6 +146,7 @@ pocopia/
 | 2026-07-02 | 2.0 | 운영 시작, 도메인 연결, 다국어, 캐시 버스팅, 보안 강화 |
 | 2026-07-02 | 2.1 | launchd 기반 백그라운드 실행, Safari 타이머 버그 수정, UI 다듬기, 문서 최신화, zsh alias 파일 분리 |
 | 2026-07-02 | 2.2 | cloudflared Tunnel launchd 등록, 노트북 닫아도 외부 접속 유지, zsh tunnel 명령어 추가 |
+| 2026-07-02 | 2.3 | 재부팅 시 gunicorn/cloudflared 모두 자동 시작 off, `pokopia-start`/`stop`으로 서버+Tunnel 통합 제어 |
 
 ---
 

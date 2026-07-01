@@ -33,13 +33,9 @@ uv run python app.py
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.cloudflared.plist
 
-# 서버 시작/종료
+# 서버 + Cloudflare Tunnel 시작/종료
 pokopia-start
 pokopia-stop
-
-# Tunnel 시작/종료
-pokopia-tunnel-start
-pokopia-tunnel-stop
 ```
 
 ---
@@ -121,10 +117,8 @@ launchctl bootout gui/$(id -u)/com.pokopia.gunicorn
 
 | 명령어 | 설명 |
 |--------|------|
-| `pokopia-start` | 서버 시작 (launchd) |
-| `pokopia-stop` | 서버 종료 (launchd) |
-| `pokopia-tunnel-start` | Cloudflare Tunnel 시작 (launchd) |
-| `pokopia-tunnel-stop` | Cloudflare Tunnel 종료 |
+| `pokopia-start` | 서버 + Cloudflare Tunnel 시작 (launchd) |
+| `pokopia-stop` | 서버 + Cloudflare Tunnel 종료 |
 | `pokopia-alert` | 종료 예고 배너 ON |
 | `pokopia-alert-off` | 종료 예고 배너 OFF |
 | `pokopia-status` | 서버/Tunnel 상태 확인 (launchd + API) |
@@ -153,4 +147,4 @@ launchctl bootout gui/$(id -u)/com.pokopia.gunicorn
 ---
 
 *작성일: 2026-07-02*  
-*버전: 2.2*
+*버전: 2.3*
