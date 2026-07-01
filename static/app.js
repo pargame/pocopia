@@ -220,7 +220,14 @@ function renderIslands(data) {
 
     const container = document.getElementById('islands');
     const countEl = document.getElementById('count');
-    const filtered = searchKeyword ? data.filter(i => i.title.toLowerCase().includes(searchKeyword.toLowerCase())) : data;
+    let filtered;
+    if (filterMode === 'pinned') {
+        filtered = data.filter(i => i.is_pinned);
+    } else if (filterMode === 'mine') {
+        filtered = data;
+    } else {
+        filtered = searchKeyword ? data.filter(i => i.title.toLowerCase().includes(searchKeyword.toLowerCase())) : data;
+    }
     const cooling = isCooldownActive();
 
     countEl.textContent = `(${filtered.length})`;
@@ -297,18 +304,21 @@ document.getElementById('searchInput')?.addEventListener('input', (e) => {
 // ── 필터 ──
 const filterAllBtn = document.getElementById('filterAll');
 const filterMineBtn = document.getElementById('filterMine');
+const filterPinnedBtn = document.getElementById('filterPinned');
 const deleteAllBtn = document.getElementById('deleteAllMineBtn');
 
 function setFilter(mode) {
     filterMode = mode;
     filterAllBtn?.classList.toggle('active', mode === 'all');
     filterMineBtn?.classList.toggle('active', mode === 'mine');
+    filterPinnedBtn?.classList.toggle('active', mode === 'pinned');
     if (deleteAllBtn) deleteAllBtn.style.display = mode === 'mine' ? 'inline-block' : 'none';
     fetchIslands();
 }
 
 filterAllBtn?.addEventListener('click', () => setFilter('all'));
 filterMineBtn?.addEventListener('click', () => setFilter('mine'));
+filterPinnedBtn?.addEventListener('click', () => setFilter('pinned'));
 
 deleteAllBtn?.addEventListener('click', async () => {
     if (!confirm(t('deleteAllMine') + '?')) return;

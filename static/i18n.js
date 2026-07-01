@@ -41,6 +41,8 @@ const i18n = {
         refreshHint: "브라우저 새로고침으로 목록을 갱신합니다.",
         filterAll: "전체",
         filterMine: "내 게시",
+        filterPinned: "고정섬",
+        permanent: "상시",
         infoStorage: "데이터 저장",
         infoStorageDesc: "모든 데이터는 서버 메모리에만 저장됩니다. 서버가 재시작되면 모든 게시물이 사라집니다.",
         infoIp: "IP 기반 식별",
@@ -98,6 +100,8 @@ const i18n = {
         refreshHint: "Refresh the page to update the list.",
         filterAll: "All",
         filterMine: "My Posts",
+        filterPinned: "Pinned",
+        permanent: "Always",
         infoStorage: "Data Storage",
         infoStorageDesc: "All data is stored only in server memory. When the server restarts, all posts disappear.",
         infoIp: "IP-Based Identification",
@@ -155,6 +159,8 @@ const i18n = {
         refreshHint: "ページを更新してリストを最新にします。",
         filterAll: "すべて",
         filterMine: "自分の投稿",
+        filterPinned: "固定島",
+        permanent: "常時"
         infoStorage: "データ保存",
         infoStorageDesc: "すべてのデータはサーバーのメモリにのみ保存されます。サーバーが再起動すると、すべての投稿が消えます。",
         infoIp: "IPベースの識別",
@@ -221,6 +227,8 @@ function applyTranslations() {
     if (filterAll) filterAll.textContent = t('filterAll');
     const filterMine = document.getElementById('filterMine');
     if (filterMine) filterMine.textContent = t('filterMine');
+    const filterPinned = document.getElementById('filterPinned');
+    if (filterPinned) filterPinned.textContent = t('filterPinned');
 
     // Delete all button
     const deleteAllBtn = document.getElementById('deleteAllMineBtn');

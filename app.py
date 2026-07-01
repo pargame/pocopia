@@ -16,6 +16,15 @@ VALID_DURATIONS = {60, 300, 1800, 3600}
 CODE_PATTERN = re.compile(r"^[A-HJ-NP-Y0-9]{8}$")
 ADMIN_TOKEN = "pokopia-admin-2026"
 
+# ── 고정 클라우드섬 ──
+PINNED_ISLAND = {
+    "id": "pinned",
+    "title": "모든 템 복사 섬",
+    "description": "원하는 템을 찍어서 복사할 수 있는 곳입니다.",
+    "code": "LPDXPD6F",
+    "duration": 3600,
+}
+
 # ── 메모리 저장소 ──
 islands = {}           # {id: island_data}
 reveal_cooldown = {}   # {ip: timestamp}
@@ -54,8 +63,25 @@ def get_client_ip():
 
 def clean_expired():
     now = now_kst()
-    for k in [k for k, v in islands.items() if v["expires_at"] < now]:
+    for k in [k for k, v in islands.items() if v.get("creator_ip") != "pinned" and v["expires_at"] < now]:
         islands.pop(k, None)
+
+
+def init_pinned_island():
+    """서버 시작 시 고정 클라우드섬이 없으면 생성"""
+    if "pinned" in islands:
+        return
+    now = now_kst()
+    islands["pinned"] = {
+        "id": PINNED_ISLAND["id"],
+        "title": PINNED_ISLAND["title"],
+        "description": PINNED_ISLAND["description"],
+        "code": PINNED_ISLAND["code"],
+        "created_at": now,
+        "expires_at": now + timedelta(days=365*100),
+        "duration": PINNED_ISLAND["duration"],
+        "creator_ip": "pinned",
+    }
 
 
 def clean_expired_cooldown():
@@ -74,6 +100,7 @@ def build_item(island, now):
         "remaining_seconds": max(0, int((island["expires_at"] - now).total_seconds())),
         "duration": island.get("duration", 60),
         "code": None,
+        "is_pinned": island.get("creator_ip") == "pinned",
     }
 
 
@@ -164,6 +191,8 @@ def reveal_code(island_id):
 def delete_island(island_id):
     if island_id not in islands:
         return jsonify({"error": "not_found"}), 404
+    if island_id == "pinned" or islands[island_id].get("creator_ip") == "pinned":
+        return jsonify({"error": "forbidden"}), 403
     if islands[island_id].get("creator_ip") != get_client_ip():
         return jsonify({"error": "forbidden"}), 403
     islands.pop(island_id)
@@ -224,6 +253,10 @@ def static_files(path):
 
 # ── 백그라운드 정리 스레드 시작 ──
 start_background_cleaner()
+
+
+# ── 고정 클라우드섬 초기화 ──
+init_pinned_island()
 
 
 if __name__ == "__main__":
