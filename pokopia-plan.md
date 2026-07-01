@@ -33,6 +33,9 @@
 - [x] 입력 유효성 검증 (제목 2~20자, 설명 0~40자, 코드 8자리 Z/I/O 제외)
 - [x] 공유 기간 선택 (1분/5분/30분/60분)
 - [x] 자동 만료 (요청 시 `clean_expired()` 호출)
+- [x] 유명 섬 (고정 클라우드섬) — `PINNED_ISLANDS` 리스트로 관리, 서버 재시작 시 자동 생성, 삭제/만료 방지
+  - `모든 템 복사 섬` (LPDXPD6F)
+  - `간판 섬` (CS8PGM1V)
 
 ### 프론트엔드
 - [x] 업로드 폼 + 실시간 목록 + 검색 + 필터
@@ -46,7 +49,7 @@
 ### 인프라
 - [x] Cloudflare Tunnel + `pokoclouds.com` 도메인
 - [x] macOS LaunchAgent (`launchd`)로 gunicorn 백그라운드 실행, 재부팅 후 수동 시작
-- [x] macOS LaunchAgent (`launchd`)로 cloudflared Tunnel 백그라운드 실행, 재부팅 시 자동 시작
+- [x] macOS LaunchAgent (`launchd`)로 cloudflared Tunnel 백그라운드 실행, 재부팅 후 `pokopia-start`로 수동 시작
 - [x] 캐시 버스팅 자동화 (`deploy.sh` — Git 해시 기반)
 - [x] 정적 파일 `no-cache` 헤더 적용
 - [x] zsh 단축 명령어 (launchd 기반 start/stop/tunnel/alert/status)
@@ -147,8 +150,9 @@ pocopia/
 | 2026-07-02 | 2.1 | launchd 기반 백그라운드 실행, Safari 타이머 버그 수정, UI 다듬기, 문서 최신화, zsh alias 파일 분리 |
 | 2026-07-02 | 2.2 | cloudflared Tunnel launchd 등록, 노트북 닫아도 외부 접속 유지, zsh tunnel 명령어 추가 |
 | 2026-07-02 | 2.3 | 재부팅 시 gunicorn/cloudflared 모두 자동 시작 off, `pokopia-start`/`stop`으로 서버+Tunnel 통합 제어 |
+| 2026-07-02 | 2.4 | 유명 섬 기능 추가 (`PINNED_ISLANDS`), 2번째 유명 섬 `간판 섬` (CS8PGM1V) 추가, 문서 최신화 |
 
 ---
 
 *작성일: 2026-07-02*  
-*버전: 2.0*
+*버전: 2.4*

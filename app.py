@@ -28,7 +28,7 @@ PINNED_ISLANDS = [
     {
         "id": "pinned-1",
         "title": "간판 섬",
-        "description": "포켓몬 게임에 실제 간판을 찍을 수 있습니다.",
+        "description": "포켓몬 게임에 실제 등장했던 간판을 찍을 수 있습니다.",
         "code": "CS8PGM1V",
         "duration": 3600,
     },
