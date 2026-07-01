@@ -1,7 +1,7 @@
 const API_URL = '';
 const COOLDOWN_SECONDS = 30;
-const COOLDOWN_KEY = 'pocopia-cooldown-end';
-const REVEALED_KEY = 'pocopia-revealed';
+const COOLDOWN_KEY = 'pokopia-cooldown-end';
+const REVEALED_KEY = 'pokopia-revealed';
 const VALID_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXY0123456789';
 
 // ── DOM 요소 ──

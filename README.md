@@ -1,4 +1,4 @@
-# 🏝️ 포코피아 (Pocopia)
+# 🏝️ 포코피아 (Pokopia)
 
 > 닌텐도 스위치2 게임 「포코피아」의 써드파티 클라우드섬 공유 사이트
 
@@ -14,16 +14,16 @@
 
 | 명령어 | 설명 |
 |--------|------|
-| `pocopia-start` | 서버 시작 (이미 실행 중이면 무시) |
-| `pocopia-stop` | 서버 즉시 종료 |
-| `pocopia-alert` | 종료 예고 배너 ON (사용자에게 사전 안내) |
-| `pocopia-status` | 서버 상태, 예고 문구, 활성 게시물 수 확인 |
+| `pokopia-start` | 서버 시작 (이미 실행 중이면 무시) |
+| `pokopia-stop` | 서버 즉시 종료 |
+| `pokopia-alert` | 종료 예고 배너 ON (사용자에게 사전 안내) |
+| `pokopia-status` | 서버 상태, 예고 문구, 활성 게시물 수 확인 |
 
 ```bash
 # 예시: 서버 종료 전 예고 → 1분 후 종료
-pocopia-alert  # 노란 배너 표시
+pokopia-alert  # 노란 배너 표시
 # → 사용자들에게 "잠시 후 서버가 재시작됩니다" 안내
-pocopia-stop   # 서버 종료
+pokopia-stop   # 서버 종료
 ```
 
 ---
@@ -117,12 +117,12 @@ cloudflared tunnel run --token <YOUR_TOKEN>
 ## 📁 프로젝트 구조
 
 ```
-pocopia/
+pokopia/
 ├── app.py              # Flask 서버
 ├── pyproject.toml      # 프로젝트 설정
 ├── uv.lock            # 의존성 lock
 ├── .gitignore         # 보안: 민감 파일 제외
-├── pocopia-plan.md    # 프로젝트 계획서
+├── pokopia-plan.md    # 프로젝트 계획서
 ├── DEVELOPMENT.md     # 개발 가이드
 ├── README.md          # 이 파일
 └── static/

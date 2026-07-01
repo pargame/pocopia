@@ -12,7 +12,7 @@ MAX_ISLANDS_PER_IP = 2
 COOLDOWN_SECONDS = 30
 VALID_DURATIONS = {60, 300, 1800, 3600}
 CODE_PATTERN = re.compile(r"^[A-HJ-NP-Y0-9]{8}$")
-ADMIN_TOKEN = "pocopia-admin-2026"
+ADMIN_TOKEN = "pokopia-admin-2026"
 
 # ── 메모리 저장소 ──
 islands = {}           # {id: island_data}

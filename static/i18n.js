@@ -55,8 +55,8 @@ const i18n = {
         langName: "한국어",
     },
     en: {
-        title: "🏝️ Pocopia",
-        subtitle: "Nintendo Switch 2 Pocopia Cloud Island Sharing Platform",
+        title: "🏝️ Pokopia",
+        subtitle: "Nintendo Switch 2 Pokopia Cloud Island Sharing Platform",
         formTitle: "Share Cloud Island",
         labelTitle: "Title *",
         titleHint: "(at least 2 characters)",
@@ -166,7 +166,7 @@ const i18n = {
     },
 };
 
-let currentLang = localStorage.getItem('pocopia-lang') || 'en';
+let currentLang = localStorage.getItem('pokopia-lang') || 'en';
 
 function t(key) {
     return i18n[currentLang]?.[key] || i18n['ko'][key];
@@ -175,7 +175,7 @@ function t(key) {
 function setLang(lang) {
     if (i18n[lang]) {
         currentLang = lang;
-        localStorage.setItem('pocopia-lang', lang);
+        localStorage.setItem('pokopia-lang', lang);
         applyTranslations();
     }
 }
