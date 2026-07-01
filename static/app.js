@@ -232,7 +232,7 @@ function renderIslands(data) {
             <div class="meta">
                 <span class="code ${revealed ? 'revealed' : ''}">${revealed ? esc(revealedCode) : ''}</span>
                 <button class="view-code-btn" data-island-id="${island.id}" ${revealed || cooling ? 'disabled' : ''}>${esc(t('viewCodeBtn'))}</button>
-                <span class="timer" data-remaining="${island.remaining_seconds}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
+                <span class="timer" data-expires="${island.expires_at}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
             </div>
         </div>`;
     }).join('');
@@ -250,9 +250,10 @@ function startCountdown() {
     clearInterval(countdownInterval);
     countdownInterval = setInterval(() => {
         let expired = false;
+        const now = Date.now();
         document.querySelectorAll('.timer').forEach(t => {
-            let r = parseInt(t.dataset.remaining, 10) - 1;
-            t.dataset.remaining = r;
+            const expires = new Date(t.dataset.expires).getTime();
+            const r = Math.floor((expires - now) / 1000);
             t.textContent = r <= 0 ? (expired = true, t('expired')) : `${t('remaining')}: ${fmtTime(r)}`;
         });
         if (expired) fetchIslands();
