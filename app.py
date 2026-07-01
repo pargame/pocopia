@@ -10,6 +10,10 @@ app = Flask(__name__, static_folder="static")
 # 메모리 저장소: {id: island_data}
 islands = {}
 
+# 코드 공개 쿨타임: {ip: timestamp}
+reveal_cooldown = {}
+COOLDOWN_SECONDS = 30
+
 
 def now_kst():
     return datetime.now(timezone(timedelta(hours=9)))
@@ -45,6 +49,7 @@ def get_islands():
             "expires_at": island["expires_at"].isoformat(),
             "remaining_seconds": max(0, int((island["expires_at"] - now).total_seconds())),
             "duration": island.get("duration", 60),
+            "code": None,  # 코드는 별도 API로 조회
         }
         result.append(item)
     return jsonify(result)
@@ -100,6 +105,35 @@ def create_island():
         "remaining_seconds": duration,
         "duration": duration,
     }), 201
+
+
+@app.route("/islands/<island_id>/reveal", methods=["POST"])
+def reveal_code(island_id):
+    """코드 공개 (서버 사이드 쿨타임 적용)"""
+    clean_expired()
+
+    if island_id not in islands:
+        return jsonify({"error": "해당 클라우드섬을 찾을 수 없습니다."}), 404
+
+    # IP 기반 쿨타임 체크
+    client_ip = request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0].strip()
+    now_ts = datetime.now().timestamp()
+
+    if client_ip in reveal_cooldown:
+        elapsed = now_ts - reveal_cooldown[client_ip]
+        if elapsed < COOLDOWN_SECONDS:
+            remaining = int(COOLDOWN_SECONDS - elapsed)
+            return jsonify({"error": f"쿨타임 중입니다. {remaining}초 후 다시 시도해주세요.", "cooldown_remaining": remaining}), 429
+
+    # 쿨타임 기록
+    reveal_cooldown[client_ip] = now_ts
+
+    island = islands[island_id]
+    return jsonify({
+        "id": island_id,
+        "code": island["code"],
+        "title": island["title"],
+    })
 
 
 @app.route("/islands/<island_id>", methods=["DELETE"])

@@ -246,7 +246,7 @@ function hideCooldownBanner() {
 }
 
 // ── 코드 보기 버튼 핸들러 ──
-function handleViewCode(e, code, islandId) {
+async function handleViewCode(e, code, islandId) {
     e.stopPropagation();
     const btn = e.currentTarget;
     const card = btn.closest('.island-card');
@@ -254,7 +254,7 @@ function handleViewCode(e, code, islandId) {
 
     // 이미 공개된 코드면 클립보드 복사만
     if (codeEl.classList.contains('revealed')) {
-        navigator.clipboard.writeText(code);
+        navigator.clipboard.writeText(codeEl.textContent);
         return;
     }
 
@@ -263,17 +263,33 @@ function handleViewCode(e, code, islandId) {
         return;
     }
 
-    // 코드 공개
-    codeEl.classList.add('revealed');
-    codeEl.textContent = code;
-    navigator.clipboard.writeText(code);
-    saveRevealedCode(islandId);
+    try {
+        // 서버에 코드 공개 요청
+        const res = await fetch(`${API_URL}/islands/${islandId}/reveal`, {
+            method: 'POST',
+        });
 
-    // 버튼 비활성화
-    btn.disabled = true;
+        const data = await res.json();
 
-    // 쿨타임 시작
-    startCooldown();
+        if (!res.ok) {
+            showMessage(data.error || '오류가 발생했습니다.', 'error');
+            return;
+        }
+
+        // 코드 공개
+        codeEl.classList.add('revealed');
+        codeEl.textContent = data.code;
+        navigator.clipboard.writeText(data.code);
+        saveRevealedCode(islandId);
+
+        // 버튼 비활성화
+        btn.disabled = true;
+
+        // 쿨타임 시작
+        startCooldown();
+    } catch (err) {
+        showMessage('서버 연결에 실패했습니다.', 'error');
+    }
 }
 
 // ── 폼 제출 ──
