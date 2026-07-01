@@ -160,7 +160,7 @@ const i18n = {
         filterAll: "すべて",
         filterMine: "自分の投稿",
         filterPinned: "固定島",
-        permanent: "常時"
+        permanent: "常時",
         infoStorage: "データ保存",
         infoStorageDesc: "すべてのデータはサーバーのメモリにのみ保存されます。サーバーが再起動すると、すべての投稿が消えます。",
         infoIp: "IPベースの識別",
