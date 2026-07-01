@@ -274,6 +274,10 @@ function startCountdown() {
             const now = Date.now();
             document.querySelectorAll('.timer').forEach(el => {
                 const id = el.dataset.id;
+                if (id === 'pinned') {
+                    el.textContent = t('permanent');
+                    return;
+                }
                 const expiresAt = islandTimers[id];
                 const r = Math.floor((expiresAt - now) / 1000);
 
