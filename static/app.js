@@ -1,6 +1,7 @@
 const API_URL = '';
 const COOLDOWN_SECONDS = 30;
 const COOLDOWN_STORAGE_KEY = 'pocopia-cooldown-end';
+const REVEALED_CODES_KEY = 'pocopia-revealed-codes';
 
 // 폼 제출
 const form = document.getElementById('islandForm');
@@ -13,10 +14,49 @@ let cooldownEndTime = parseInt(localStorage.getItem(COOLDOWN_STORAGE_KEY) || '0'
 let cooldownInterval = null;
 let cooldownBanner = null;
 
+// 공개된 코드 목록 (localStorage)
+function getRevealedCodes() {
+    try {
+        return JSON.parse(localStorage.getItem(REVEALED_CODES_KEY) || '{}');
+    } catch {
+        return {};
+    }
+}
+
+function saveRevealedCode(id) {
+    const revealed = getRevealedCodes();
+    revealed[id] = Date.now();
+    localStorage.setItem(REVEALED_CODES_KEY, JSON.stringify(revealed));
+}
+
+function clearExpiredRevealedCodes() {
+    const revealed = getRevealedCodes();
+    const now = Date.now();
+    let changed = false;
+    for (const [id, time] of Object.entries(revealed)) {
+        if (now - time > COOLDOWN_SECONDS * 1000) {
+            delete revealed[id];
+            changed = true;
+        }
+    }
+    if (changed) {
+        localStorage.setItem(REVEALED_CODES_KEY, JSON.stringify(revealed));
+    }
+}
+
+function isCodeRevealed(id) {
+    const revealed = getRevealedCodes();
+    if (!revealed[id]) return false;
+    return (Date.now() - revealed[id]) < COOLDOWN_SECONDS * 1000;
+}
+
 // 페이지 로드 시 쿨타임 복원
 if (cooldownEndTime > Date.now()) {
     startCooldown();
 }
+
+// 만료된 공개 코드 정리
+clearExpiredRevealedCodes();
 
 // ── 언어 선택 ──
 document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -179,7 +219,7 @@ function hideCooldownBanner() {
 }
 
 // ── 코드 클릭 핸들러 ──
-function handleCodeClick(e, code) {
+function handleCodeClick(e, code, islandId) {
     e.stopPropagation();
     const codeEl = e.currentTarget;
 
@@ -198,6 +238,7 @@ function handleCodeClick(e, code) {
     codeEl.classList.add('revealed');
     codeEl.textContent = code;
     navigator.clipboard.writeText(code);
+    saveRevealedCode(islandId);
 
     // 쿨타임 시작
     startCooldown();
@@ -287,16 +328,18 @@ function renderIslands(data) {
         return;
     }
 
-    container.innerHTML = data.map(island => `
+    container.innerHTML = data.map(island => {
+        const revealed = isCodeRevealed(island.id);
+        return `
         <div class="island-card" data-id="${island.id}">
             <div class="title">🏝️ ${escapeHtml(island.title)}</div>
             ${island.description ? `<div class="description">${escapeHtml(island.description)}</div>` : ''}
             <div class="meta">
-                <span class="code" onclick="handleCodeClick(event, '${island.code}')">${escapeHtml(t('clickToReveal'))}</span>
+                <span class="code ${revealed ? 'revealed' : ''}" onclick="handleCodeClick(event, '${island.code}', '${island.id}')">${revealed ? escapeHtml(island.code) : escapeHtml(t('clickToReveal'))}</span>
                 <span class="timer" data-remaining="${island.remaining_seconds}">${t('remaining')}: ${island.remaining_seconds}${t('seconds')}</span>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
     // 쿨타임 중이면 새로 렌더링된 카드에도 적용
     if (isCooldownActive()) {
