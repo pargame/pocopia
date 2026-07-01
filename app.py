@@ -12,6 +12,7 @@ MAX_ISLANDS_PER_IP = 2
 COOLDOWN_SECONDS = 30
 VALID_DURATIONS = {60, 300, 1800, 3600}
 CODE_PATTERN = re.compile(r"^[A-HJ-NP-Y0-9]{8}$")
+ADMIN_TOKEN = "pocopia-admin-2026"
 
 # ── 메모리 저장소 ──
 islands = {}           # {id: island_data}
@@ -149,10 +150,12 @@ def reveal_code(island_id):
 
 @app.route("/islands/<island_id>", methods=["DELETE"])
 def delete_island(island_id):
-    if island_id in islands:
-        islands.pop(island_id)
-        return jsonify({"success": True})
-    return jsonify({"error": "not_found"}), 404
+    if island_id not in islands:
+        return jsonify({"error": "not_found"}), 404
+    if islands[island_id].get("creator_ip") != get_client_ip():
+        return jsonify({"error": "forbidden"}), 403
+    islands.pop(island_id)
+    return jsonify({"success": True})
 
 
 @app.route("/islands/me", methods=["GET"])
@@ -182,6 +185,8 @@ def get_maintenance():
 
 @app.route("/maintenance", methods=["POST"])
 def set_maintenance():
+    if request.headers.get("X-Admin-Token") != ADMIN_TOKEN:
+        return jsonify({"error": "unauthorized"}), 403
     global maintenance_mode
     maintenance_mode = bool((request.get_json() or {}).get("enabled", False))
     return jsonify({"enabled": maintenance_mode})
