@@ -206,12 +206,20 @@ def set_maintenance():
 
 @app.route("/")
 def index():
-    return send_from_directory("static", "index.html")
+    response = send_from_directory("static", "index.html")
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @app.route("/<path:path>")
 def static_files(path):
-    return send_from_directory("static", path)
+    response = send_from_directory("static", path)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 # ── 백그라운드 정리 스레드 시작 ──
