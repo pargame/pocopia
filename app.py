@@ -1,89 +1,110 @@
 from flask import Flask, jsonify, request, send_from_directory
 from datetime import datetime, timedelta, timezone
 import uuid
-import threading
 import re
-import os
 
 app = Flask(__name__, static_folder="static")
 
-# 메모리 저장소: {id: island_data}
-islands = {}
-
-# 코드 공개 쿨타임: {ip: timestamp}
-reveal_cooldown = {}
+# ── 설정 ──
+MAX_TITLE_LEN = 20
+MAX_DESC_LEN = 40
+MAX_ISLANDS_PER_IP = 2
 COOLDOWN_SECONDS = 30
+VALID_DURATIONS = {60, 300, 1800, 3600}
+CODE_PATTERN = re.compile(r"^[A-HJ-NP-Y0-9]{8}$")
+
+# ── 메모리 저장소 ──
+islands = {}           # {id: island_data}
+reveal_cooldown = {}   # {ip: timestamp}
+maintenance_mode = False
+
+MAINTENANCE_MESSAGE = {
+    "ko": "잠시 후 서버가 재시작됩니다. 게시물은 초기화되니 필요한 코드는 미리 복사해주세요!",
+    "en": "Server will restart soon. Please copy any codes you need before the reset!",
+    "ja": "まもなくサーバーが再起動されます。必要なコードは事前にコピーしてください！",
+}
 
 
 def now_kst():
     return datetime.now(timezone(timedelta(hours=9)))
 
 
+def get_client_ip():
+    cf_ip = request.headers.get("CF-Connecting-IP")
+    if cf_ip:
+        return cf_ip.strip()
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.remote_addr or "unknown"
+
+
 def clean_expired():
-    """만료된 섬 제거"""
     now = now_kst()
-    expired = [k for k, v in islands.items() if v["expires_at"] < now]
-    for k in expired:
+    for k in [k for k, v in islands.items() if v["expires_at"] < now]:
         islands.pop(k, None)
 
 
-def schedule_delete(island_id, delay=60):
-    """delay 초 후 자동 삭제"""
-    def _delete():
-        islands.pop(island_id, None)
-    threading.Timer(delay, _delete).start()
+def clean_expired_cooldown():
+    now_ts = datetime.now().timestamp()
+    for ip in [ip for ip, ts in reveal_cooldown.items() if now_ts - ts >= COOLDOWN_SECONDS]:
+        reveal_cooldown.pop(ip, None)
 
+
+def build_item(island, now):
+    return {
+        "id": island["id"],
+        "title": island["title"],
+        "description": island["description"],
+        "created_at": island["created_at"].isoformat(),
+        "expires_at": island["expires_at"].isoformat(),
+        "remaining_seconds": max(0, int((island["expires_at"] - now).total_seconds())),
+        "duration": island.get("duration", 60),
+        "code": None,
+    }
+
+
+# ── API 엔드포인트 ──
 
 @app.route("/islands", methods=["GET"])
 def get_islands():
     clean_expired()
     now = now_kst()
-    result = []
-    for island in sorted(islands.values(), key=lambda x: x["created_at"], reverse=True):
-        item = {
-            "id": island["id"],
-            "title": island["title"],
-            "description": island["description"],
-            "code": island["code"],
-            "created_at": island["created_at"].isoformat(),
-            "expires_at": island["expires_at"].isoformat(),
-            "remaining_seconds": max(0, int((island["expires_at"] - now).total_seconds())),
-            "duration": island.get("duration", 60),
-            "code": None,  # 코드는 별도 API로 조회
-        }
-        result.append(item)
+    result = [build_item(v, now) for v in sorted(islands.values(), key=lambda x: x["created_at"], reverse=True)]
     return jsonify(result)
 
 
 @app.route("/islands", methods=["POST"])
 def create_island():
     data = request.get_json() or {}
-
     title = (data.get("title") or "").strip()
     description = (data.get("description") or "").strip()
     code = (data.get("code") or "").strip().upper()
 
-    # 유효성 검증
     if len(title) < 2:
-        return jsonify({"error": "제목은 2자 이상 입력해주세요."}), 400
-    if len(title) > 50:
-        return jsonify({"error": "제목은 50자 이하여야 합니다."}), 400
-    if len(description) > 200:
-        return jsonify({"error": "설명은 200자 이하여야 합니다."}), 400
-    if not re.fullmatch(r"[A-HJ-NP-Y0-9]{8}", code):
-        return jsonify({"error": "코드는 정확히 8자리의 Z, I, O를 제외한 알파벳 대문자 또는 숫자여야 합니다."}), 400
+        return jsonify({"error": "title_min"}), 400
+    if len(title) > MAX_TITLE_LEN:
+        return jsonify({"error": "title_max"}), 400
+    if len(description) > MAX_DESC_LEN:
+        return jsonify({"error": "desc_max"}), 400
+    if not CODE_PATTERN.fullmatch(code):
+        return jsonify({"error": "code_invalid"}), 400
 
-    # duration 검증 (초 단위)
     duration = data.get("duration", 60)
-    VALID_DURATIONS = {60, 300, 1800, 3600}
     if duration not in VALID_DURATIONS:
         duration = 60
+
+    client_ip = get_client_ip()
+    clean_expired()
+    active_count = sum(1 for v in islands.values() if v.get("creator_ip") == client_ip)
+    if active_count >= MAX_ISLANDS_PER_IP:
+        return jsonify({"error": "ip_limit"}), 429
 
     island_id = str(uuid.uuid4())[:8]
     now = now_kst()
     expires = now + timedelta(seconds=duration)
 
-    island = {
+    islands[island_id] = {
         "id": island_id,
         "title": title,
         "description": description,
@@ -91,9 +112,8 @@ def create_island():
         "created_at": now,
         "expires_at": expires,
         "duration": duration,
+        "creator_ip": client_ip,
     }
-    islands[island_id] = island
-    schedule_delete(island_id, delay=duration)
 
     return jsonify({
         "id": island_id,
@@ -109,31 +129,22 @@ def create_island():
 
 @app.route("/islands/<island_id>/reveal", methods=["POST"])
 def reveal_code(island_id):
-    """코드 공개 (서버 사이드 쿨타임 적용)"""
     clean_expired()
-
     if island_id not in islands:
-        return jsonify({"error": "해당 클라우드섬을 찾을 수 없습니다."}), 404
+        return jsonify({"error": "not_found"}), 404
 
-    # IP 기반 쿨타임 체크
-    client_ip = request.headers.get("X-Forwarded-For", request.remote_addr).split(",")[0].strip()
+    client_ip = get_client_ip()
     now_ts = datetime.now().timestamp()
+    clean_expired_cooldown()
 
     if client_ip in reveal_cooldown:
         elapsed = now_ts - reveal_cooldown[client_ip]
         if elapsed < COOLDOWN_SECONDS:
-            remaining = int(COOLDOWN_SECONDS - elapsed)
-            return jsonify({"error": f"쿨타임 중입니다. {remaining}초 후 다시 시도해주세요.", "cooldown_remaining": remaining}), 429
+            return jsonify({"error": "cooldown", "cooldown_remaining": int(COOLDOWN_SECONDS - elapsed)}), 429
 
-    # 쿨타임 기록
     reveal_cooldown[client_ip] = now_ts
-
     island = islands[island_id]
-    return jsonify({
-        "id": island_id,
-        "code": island["code"],
-        "title": island["title"],
-    })
+    return jsonify({"id": island_id, "code": island["code"], "title": island["title"]})
 
 
 @app.route("/islands/<island_id>", methods=["DELETE"])
@@ -141,7 +152,39 @@ def delete_island(island_id):
     if island_id in islands:
         islands.pop(island_id)
         return jsonify({"success": True})
-    return jsonify({"error": "해당 클라우드섬을 찾을 수 없습니다."}), 404
+    return jsonify({"error": "not_found"}), 404
+
+
+@app.route("/islands/me", methods=["GET"])
+def get_my_islands():
+    clean_expired()
+    client_ip = get_client_ip()
+    now = now_kst()
+    result = [build_item(v, now) for v in sorted(islands.values(), key=lambda x: x["created_at"], reverse=True)
+              if v.get("creator_ip") == client_ip]
+    return jsonify(result)
+
+
+@app.route("/islands/me", methods=["DELETE"])
+def delete_all_my_islands():
+    clean_expired()
+    client_ip = get_client_ip()
+    deleted = [k for k, v in list(islands.items()) if v.get("creator_ip") == client_ip]
+    for k in deleted:
+        islands.pop(k, None)
+    return jsonify({"success": True, "deleted_count": len(deleted), "deleted_ids": deleted})
+
+
+@app.route("/maintenance", methods=["GET"])
+def get_maintenance():
+    return jsonify({"enabled": maintenance_mode, "message": MAINTENANCE_MESSAGE})
+
+
+@app.route("/maintenance", methods=["POST"])
+def set_maintenance():
+    global maintenance_mode
+    maintenance_mode = bool((request.get_json() or {}).get("enabled", False))
+    return jsonify({"enabled": maintenance_mode})
 
 
 @app.route("/")

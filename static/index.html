@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏝️ 포코피아 - 클라우드섬 공유</title>
-    <link rel="stylesheet" href="/style.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🏝️ Pocopia - Cloud Island Sharing</title>
+    <link rel="stylesheet" href="/style.css?v=7">
 </head>
 <body>
+    <div id="maintenanceBanner" class="maintenance-banner" style="display:none;"></div>
     <div class="container">
         <header>
             <div class="lang-switcher">
-                <button class="lang-btn active" data-lang="ko">한국어</button>
-                <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn" data-lang="ko">한국어</button>
+                <button class="lang-btn active" data-lang="en">English</button>
                 <button class="lang-btn" data-lang="ja">日本語</button>
             </div>
             <h1>🏝️ 포코피아</h1>
@@ -19,19 +23,19 @@
         </header>
 
         <section class="upload-form">
-            <h2>클우드섬 공유하기</h2>
+            <h2>클라우드섬 공유하기</h2>
             <form id="islandForm">
                 <div class="form-group">
-                    <label for="title">제목 *</label>
-                    <input type="text" id="title" name="title" maxlength="50" placeholder="제목을 입력하세요" required>
+                    <label for="title">Title * <span class="hint" id="titleHint">(at least 2 characters)</span></label>
+                    <input type="text" id="title" name="title" maxlength="20" placeholder="Enter title" required>
                 </div>
                 <div class="form-group">
-                    <label for="description">설명</label>
-                    <input type="text" id="description" name="description" maxlength="200" placeholder="간단한 소개 (선택)">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" maxlength="40" placeholder="Brief intro (optional)">
                 </div>
                 <div class="form-group">
-                    <label for="code">클우드섬 코드 * <span class="hint">(Z, I, O 제외한 8자리 알파벳/숫자)</span></label>
-                    <input type="text" id="code" name="code" maxlength="8" placeholder="예: 1234ABCD" required style="text-transform: uppercase;" inputmode="latin" lang="en">
+                    <label for="code">Cloud Island Code * <span class="hint">(8 chars, uppercase A-Y excl. Z, I, O)</span></label>
+                    <input type="text" id="code" name="code" maxlength="8" placeholder="e.g. 1234ABCD" required style="text-transform: uppercase;" inputmode="latin" lang="en">
                     <div id="code-hint" class="input-hint"></div>
                 </div>
                 <div class="form-group">
@@ -55,25 +59,43 @@
                         </label>
                     </div>
                 </div>
-                <button type="submit" class="btn-submit">클우드섬 공유하기</button>
+                <button type="submit" class="btn-submit">Share Cloud Island</button>
             </form>
             <div id="message" class="message"></div>
         </section>
 
         <section class="island-list">
             <div class="list-header">
-                <h2>현재 활성화된 클라우드섬 <span id="count">(0)</span></h2>
+                <h2>Active Cloud Islands <span id="count">(0)</span></h2>
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="제목으로 검색...">
+                    <input type="text" id="searchInput" placeholder="Search by title...">
                 </div>
+                <p id="refreshHint" class="refresh-hint">Press F5 to refresh the list!</p>
+            </div>
+            <div class="filter-bar">
+                <div class="filter-tabs">
+                    <button type="button" id="filterAll" class="filter-tab active">전체</button>
+                    <button type="button" id="filterMine" class="filter-tab">내 게시물</button>
+                </div>
+                <button type="button" id="deleteAllMineBtn" class="delete-all-btn" style="display:none;">내 게시물 모두 삭제</button>
             </div>
             <div id="islands" class="islands">
-                <p class="empty">아직 공유된 클라우드섬이 없습니다.</p>
+                <p class="empty">No cloud islands shared yet.</p>
             </div>
         </section>
     </div>
 
-    <script src="/i18n.js"></script>
-    <script src="/app.js"></script>
+    <footer class="site-footer">
+        <button type="button" id="infoToggle" class="info-toggle">info</button>
+        <div id="infoPanel" class="info-panel" style="display:none;">
+            <p><strong id="infoStorage">Data Storage</strong><br><span id="infoStorageDesc">All data is stored in memory only. When the server restarts, all posts are reset.</span></p>
+            <p><strong id="infoIp">IP-Based Identification</strong><br><span id="infoIpDesc">Users on the same Wi-Fi network may share the same IP address.</span></p>
+            <p><strong id="infoAbuse">Abuse Prevention</strong><br><span id="infoAbuseDesc">Max 2 posts per IP. 30-second cooldown between code reveals.</span></p>
+            <p><strong id="infoPrivacy">Privacy</strong><br><span id="infoPrivacyDesc">No login required. IP addresses are used only for rate limiting and are not shared.</span></p>
+        </div>
+    </footer>
+
+    <script src="/i18n.js?v=13"></script>
+    <script src="/app.js?v=13"></script>
 </body>
 </html>
