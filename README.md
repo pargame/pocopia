@@ -2,6 +2,8 @@
 
 > 닌텐도 스위치2 게임 「포코피아」의 써드파티 클라우드섬 공유 사이트
 
+**🌐 사이트 주소: https://pokoclouds.com**
+
 사용자가 본인의 클라우드섬 정보를 업로드하면, 다른 사용자가 코드를 보고 접속할 수 있는 간단한 공유 플랫폼입니다.
 
 ---
@@ -9,12 +11,14 @@
 ## ✨ 주요 기능
 
 - **클우드섬 업로드** — 제목, 설명, 8자리 클라우드섬 코드를 입력하여 공유
-- **자동 만료** — 업로드 후 **60초**가 지나면 게시물이 자동으로 삭제됨
+- **만료 시간 선택** — 1분 / 5분 / 30분 / 60분 중 선택
+- **자동 만료** — 설정한 시간이 지나면 게시물이 자동으로 삭제됨
 - **실시간 목록** — 현재 활성화된 클라우드섬 목록을 실시간으로 확인
+- **제목 검색** — 키워드로 게시물 필터링
 - **익명 사용** — 별도의 회원가입이나 인증 없이 바로 사용 가능
 - **다국어 지원** — 한국어 / English / 日本語
 - **모바일 최적화** — 반응형 디자인, 터치 친화적 UI
-- **스마트 입력** — Z, I, O 제외한 알파벳/숫자만 입력 가능, 한글 입력 시 실시간 피드백
+- **코드 보호** — 코드 클릭 후 30초간 쿨타임 (스크래핑/남용 방지)
 
 ---
 
@@ -25,9 +29,10 @@
 | 패키지 관리 | uv | 0.11.8 |
 | Python | CPython | 3.13 |
 | 백엔드 | Flask | 3.1.3 |
+| 서버 | gunicorn | 26.0.0 |
 | 데이터 저장 | 메모리 내장 구조 (Python dict) | — |
 | 프론트엔드 | 순수 HTML + CSS + JavaScript | — |
-| 외부 접근 (예정) | Cloudflare Tunnel | — |
+| 외부 접근 | Cloudflare Tunnel | — |
 
 ---
 
@@ -43,27 +48,21 @@ cd pocopia
 # 의존성 설치 (uv가 가상환경 자동 생성)
 uv sync
 
-# 서버 실행
-uv run python app.py
+# 서버 실행 (gunicorn, 4워커)
+uv run gunicorn -w 4 -b 0.0.0.0:5000 app:app
 
 # 브라우저에서 접속
 # → http://localhost:5000
 ```
 
-### 외부 접근 (Cloudflare Tunnel — 도메인 구매 후)
+### 프로덕션 (Cloudflare Tunnel)
 
 ```bash
-# cloudflared 설치
-brew install cloudflared
+# gunicorn 백그라운드 실행
+uv run gunicorn -w 4 -b 0.0.0.0:5000 app:app &
 
-# Cloudflare 계정 로그인
-cloudflared tunnel login
-
-# 터널 생성 및 실행
-cloudflared tunnel create pocopia
-cloudflared tunnel run pocopia
-
-# https://pocloudpia.com 에서 접속 가능
+# Cloudflare Tunnel 실행
+cloudflared tunnel run --token <YOUR_TOKEN>
 ```
 
 ---
@@ -82,7 +81,8 @@ cloudflared tunnel run pocopia
 {
   "title": "볼트의 섬",
   "description": "볼트를 많이 잡을 수 있는 섬입니다!",
-  "code": "1234ABCD"
+  "code": "1234ABCD",
+  "duration": 300
 }
 ```
 
@@ -101,6 +101,7 @@ pocopia/
 ├── app.py              # Flask 서버
 ├── pyproject.toml      # 프로젝트 설정
 ├── uv.lock            # 의존성 lock
+├── .gitignore         # 보안: 민감 파일 제외
 ├── pocopia-plan.md    # 프로젝트 계획서
 ├── DEVELOPMENT.md     # 개발 가이드
 ├── README.md          # 이 파일
@@ -123,11 +124,21 @@ pocopia/
 
 ---
 
+## 🔒 보안
+
+- `.gitignore`로 민감 파일(credentials, `.env`, `__pycache__` 등) 제외
+- Cloudflare Tunnel로 HTTPS 제공
+- 코드 클릭 쿨타임으로 스크래핑 방지
+- 입력 유효성 검증으로 스팸 방지
+
+---
+
 ## 📄 라이선스
 
 MIT License
 
 ---
 
-*작성일: 2026-07-01*  
-*버전: 1.2*
+*작성일: 2026-07-02*  
+*버전: 1.3*  
+*사이트: https://pokoclouds.com*
