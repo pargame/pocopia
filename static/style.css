@@ -281,7 +281,7 @@ header p {
     border: 1px solid #e0e0e0;
     word-break: break-all;
     cursor: pointer;
-    filter: blur(6px);
+    filter: blur(8px);
     transition: filter 0.2s;
     user-select: none;
 }
@@ -291,9 +291,8 @@ header p {
     user-select: text;
 }
 
-.island-card.cooldown {
-    filter: blur(3px);
-    opacity: 0.6;
+.island-card.cooldown .code:not(.revealed) {
+    filter: blur(8px);
     pointer-events: none;
 }
 

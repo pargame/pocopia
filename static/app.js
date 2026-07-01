@@ -1,5 +1,6 @@
 const API_URL = '';
 const COOLDOWN_SECONDS = 30;
+const COOLDOWN_STORAGE_KEY = 'pocopia-cooldown-end';
 
 // 폼 제출
 const form = document.getElementById('islandForm');
@@ -7,10 +8,15 @@ const messageEl = document.getElementById('message');
 const codeInput = document.getElementById('code');
 const codeHint = document.getElementById('code-hint');
 
-// 쿨타임 상태
-let cooldownEndTime = 0;
+// 쿨타임 상태 (localStorage로 세션 유지)
+let cooldownEndTime = parseInt(localStorage.getItem(COOLDOWN_STORAGE_KEY) || '0', 10);
 let cooldownInterval = null;
 let cooldownBanner = null;
+
+// 페이지 로드 시 쿨타임 복원
+if (cooldownEndTime > Date.now()) {
+    startCooldown();
+}
 
 // ── 언어 선택 ──
 document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -104,7 +110,10 @@ codeInput.addEventListener('blur', () => {
 
 // ── 쿨타임 관리 ──
 function startCooldown() {
-    cooldownEndTime = Date.now() + COOLDOWN_SECONDS * 1000;
+    if (cooldownEndTime <= Date.now()) {
+        cooldownEndTime = Date.now() + COOLDOWN_SECONDS * 1000;
+    }
+    localStorage.setItem(COOLDOWN_STORAGE_KEY, cooldownEndTime.toString());
     applyCooldownToCards();
     showCooldownBanner();
 
@@ -121,6 +130,7 @@ function startCooldown() {
 
 function endCooldown() {
     cooldownEndTime = 0;
+    localStorage.removeItem(COOLDOWN_STORAGE_KEY);
     if (cooldownInterval) {
         clearInterval(cooldownInterval);
         cooldownInterval = null;
@@ -264,7 +274,7 @@ function renderIslands(data) {
     const container = document.getElementById('islands');
     const countEl = document.getElementById('count');
 
-    countEl.textContent = `(${data.length}${t('countSuffix')})`;
+    countEl.textContent = `(${data.length})`;
 
     if (data.length === 0) {
         container.innerHTML = `<p class="empty">${escapeHtml(t('emptyMsg'))}</p>`;
