@@ -257,7 +257,7 @@ function reRenderFromCache() {
 
 function startCountdown() {
     clearInterval(timerInterval);
-    console.log('startCountdown', Object.keys(islandTimers));
+
     timerInterval = setInterval(() => {
         try {
             let expired = false;
@@ -266,7 +266,7 @@ function startCountdown() {
                 const id = el.dataset.id;
                 const expiresAt = islandTimers[id];
                 const r = Math.floor((expiresAt - now) / 1000);
-                console.log('tick', id, r);
+
                 el.textContent = r <= 0 ? (expired = true, t('expired')) : `${t('remaining')}: ${fmtTime(r)}`;
             });
             if (expired) fetchIslands();
