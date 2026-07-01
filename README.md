@@ -16,7 +16,8 @@
 |--------|------|
 | `pokopia-start` | 서버 시작 (이미 실행 중이면 무시) |
 | `pokopia-stop` | 서버 즉시 종료 |
-| `pokopia-alert` | 종료 예고 배너 ON (사용자에게 사전 안내) |
+| `pokopia-alert` | 종료 예고 배너 ON |
+| `pokopia-alert-off` | 종료 예고 배너 OFF |
 | `pokopia-status` | 서버 상태, 예고 문구, 활성 게시물 수 확인 |
 
 ```bash
