@@ -2,7 +2,7 @@ const i18n = {
     ko: {
         title: "🏝️ 포코피아",
         subtitle: "닌텐도 스위치2 포코피아 클라우드섬 공유 플랫폼",
-        formTitle: "클라우드섬 공유하기",
+        formTitle: "나의 클라우드섬 공유하기",
         labelTitle: "제목 *",
         titleHint: "(최소 2자 이상)",
         placeholderTitle: "제목을 입력하세요",
@@ -11,7 +11,7 @@ const i18n = {
         labelCode: "클라우드섬 코드 *",
         codeHint: "(Z, I, O 제외한 8자리 알파벳/숫자)",
         codePlaceholder: "예: 1234ABCD",
-        submitBtn: "클라우드섬 공유하기",
+        submitBtn: "나의 클라우드섬 공유하기",
         listTitle: "현재 활성화된 클라우드섬",
         countSuffix: "개",
         emptyMsg: "아직 공유된 클라우드섬이 없습니다.",
