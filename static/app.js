@@ -115,15 +115,17 @@ function startCooldown() {
     }
     localStorage.setItem(COOLDOWN_STORAGE_KEY, cooldownEndTime.toString());
     applyCooldownToCards();
-    showCooldownBanner();
+
+    const remaining = Math.ceil((cooldownEndTime - Date.now()) / 1000);
+    showCooldownBanner(remaining);
 
     if (cooldownInterval) clearInterval(cooldownInterval);
     cooldownInterval = setInterval(() => {
-        const remaining = Math.ceil((cooldownEndTime - Date.now()) / 1000);
-        if (remaining <= 0) {
+        const currentRemaining = Math.ceil((cooldownEndTime - Date.now()) / 1000);
+        if (currentRemaining <= 0) {
             endCooldown();
         } else {
-            updateCooldownBanner(remaining);
+            updateCooldownBanner(currentRemaining);
         }
     }, 1000);
 }
@@ -155,11 +157,11 @@ function removeCooldownFromCards() {
     });
 }
 
-function showCooldownBanner() {
+function showCooldownBanner(remaining) {
     hideCooldownBanner();
     cooldownBanner = document.createElement('div');
     cooldownBanner.className = 'cooldown-banner';
-    cooldownBanner.textContent = `${t('cooldownMsg')}: ${COOLDOWN_SECONDS}s`;
+    cooldownBanner.textContent = `${t('cooldownMsg')}: ${remaining}s`;
     document.body.appendChild(cooldownBanner);
 }
 
