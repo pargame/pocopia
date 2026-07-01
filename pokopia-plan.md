@@ -45,10 +45,11 @@
 
 ### 인프라
 - [x] Cloudflare Tunnel + `pokoclouds.com` 도메인
-- [x] macOS LaunchAgent (`launchd`)로 백그라운드 실행, 재부팅 후 수동 시작
+- [x] macOS LaunchAgent (`launchd`)로 gunicorn 백그라운드 실행, 재부팅 후 수동 시작
+- [x] macOS LaunchAgent (`launchd`)로 cloudflared Tunnel 백그라운드 실행, 재부팅 시 자동 시작
 - [x] 캐시 버스팅 자동화 (`deploy.sh` — Git 해시 기반)
 - [x] 정적 파일 `no-cache` 헤더 적용
-- [x] zsh 단축 명령어 (launchd 기반 start/stop/alert/status)
+- [x] zsh 단축 명령어 (launchd 기반 start/stop/tunnel/alert/status)
 
 ---
 
@@ -144,6 +145,7 @@ pocopia/
 | 2026-07-01 | 1.1 | MVP 완료, uv 도입 |
 | 2026-07-02 | 2.0 | 운영 시작, 도메인 연결, 다국어, 캐시 버스팅, 보안 강화 |
 | 2026-07-02 | 2.1 | launchd 기반 백그라운드 실행, Safari 타이머 버그 수정, UI 다듬기, 문서 최신화, zsh alias 파일 분리 |
+| 2026-07-02 | 2.2 | cloudflared Tunnel launchd 등록, 노트북 닫아도 외부 접속 유지, zsh tunnel 명령어 추가 |
 
 ---
 

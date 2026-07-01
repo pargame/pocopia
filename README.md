@@ -17,15 +17,17 @@
 source /Users/pargame/repos/pocopia/scripts/pokopia.zsh
 ```
 
-macOS **LaunchAgent**로 등록되어 있어 노트북을 닫아도 서버가 유지되며, 재부팅 후에는 `pokopia-start`로 직접 시작합니다.
+macOS **LaunchAgent**로 등록되어 있어 노트북을 닫아도 서버와 Cloudflare Tunnel이 유지되며, 재부팅 후에는 `pokopia-start`로 직접 시작합니다.
 
 | 명령어 | 설명 |
 |--------|------|
 | `pokopia-start` | 서버 시작 (launchd) |
 | `pokopia-stop` | 서버 즉시 종료 |
+| `pokopia-tunnel-start` | Cloudflare Tunnel 시작 (launchd) |
+| `pokopia-tunnel-stop` | Cloudflare Tunnel 종료 |
 | `pokopia-alert` | 종료 예고 배너 ON |
 | `pokopia-alert-off` | 종료 예고 배너 OFF |
-| `pokopia-status` | 서버 상태, 예고 문구, 활성 게시물 수 확인 |
+| `pokopia-status` | 서버/Tunnel 상태, 예고 문구, 활성 게시물 수 확인 |
 
 ```bash
 # 예시: 서버 종료 전 예고 → 종료
@@ -82,14 +84,11 @@ uv sync
 
 # LaunchAgent 등록 (최초 1회)
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.cloudflared.plist
 
 # 서버 시작
 pokopia-start
-# 또는
-# launchctl start gui/$(id -u)/com.pokopia.gunicorn
-
-# Cloudflare Tunnel 실행 (별도 터미널)
-cloudflared tunnel run --token <YOUR_TOKEN>
+pokopia-tunnel-start
 ```
 
 ### 로컬 개발
@@ -185,5 +184,5 @@ MIT License
 ---
 
 *작성일: 2026-07-02*  
-*버전: 2.1*  
+*버전: 2.2*  
 *사이트: https://pokoclouds.com*

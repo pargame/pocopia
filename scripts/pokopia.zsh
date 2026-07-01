@@ -56,9 +56,26 @@ pokopia-alert-off() {
     fi
 }
 
+pokopia-tunnel-start() {
+    launchctl start gui/$(id -u)/com.pokopia.cloudflared
+    echo "[Pokopia] Tunnel 시작됨"
+}
+
+pokopia-tunnel-stop() {
+    launchctl bootout gui/$(id -u)/com.pokopia.cloudflared
+    echo "[Pokopia] Tunnel 종료됨"
+}
+
+pokopia-tunnel-status() {
+    echo "[Pokopia] Tunnel 상태:"
+    launchctl print gui/$(id -u)/com.pokopia.cloudflared 2>/dev/null | grep -E "state =|path =" || echo "  중지됨"
+}
+
 pokopia-status() {
     echo "[Pokopia] 서버 상태:"
     launchctl print gui/$(id -u)/com.pokopia.gunicorn 2>/dev/null | grep -E "state =|path =" || echo "  중지됨"
+    echo "[Pokopia] Tunnel 상태:"
+    launchctl print gui/$(id -u)/com.pokopia.cloudflared 2>/dev/null | grep -E "state =|path =" || echo "  중지됨"
     local maint=$(curl -s http://localhost:5000/maintenance 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('ON' if d['enabled'] else 'OFF')" 2>/dev/null)
     echo "[Pokopia] 예고 문구: ${maint:-확인 불가}"
     echo "[Pokopia] 활성 게시물: $(curl -s http://localhost:5000/islands 2>/dev/null | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null)개"
