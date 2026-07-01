@@ -16,7 +16,7 @@ let islandTimers = {};  // { id: clientExpiresAt }
 let timerInterval = null;
 let cooldownInterval = null;
 let searchKeyword = '';
-let filterMode = 'all';
+let filterMode = 'pinned';
 let cooldownEndTime = parseInt(localStorage.getItem(COOLDOWN_KEY) || '0', 10);
 let cooldownBanner = null;
 
