@@ -90,12 +90,18 @@ pocopia/
 ├── .python-version    # Python 3.13 고정
 │
 ├── static/
-│   ├── index.html     # 메인 페이지 (업로드 폼 + 목록)
+│   ├── index.html     # 메인 페이지 (업로드 폼 + 목록 + 언어 선택)
 │   ├── style.css      # 반응형 스타일
-│   └── app.js         # 프론트엔드 로직
-│       ├── 폼 제출 (POST /islands)
-│       ├── 목록 조회 (GET /islands, 5초 폴리)
-│       └── 카운트다운 타이머 (1초 간격)
+│   ├── app.js         # 프론트엔드 로직
+│   │   ├── 폼 제출 (POST /islands)
+│   │   ├── 목록 조회 (GET /islands, 5초 폴리)
+│   │   ├── 카운트다운 타이머 (1초 간격)
+│   │   ├── 입력 실시간 필터링 (Z/I/O/소문자/한글/특수문자 차단)
+│   │   └── 입력 힌트 (한글/특수문자 시 빨간 테두리 + 문구)
+│   └── i18n.js        # 다국어 지원 (ko/en/ja)
+│       ├── 언어 선택 버튼
+│       ├── localStorage 저장
+│       └── 동적 텍스트 교체
 │
 ├── pocopia-plan.md    # 프로젝트 계획서 (현황, TODO, 아키텍처)
 ├── DEVELOPMENT.md     # 이 파일 (개발 가이드)
@@ -119,9 +125,15 @@ def schedule_delete(island_id, delay=60):
     threading.Timer(delay, lambda: islands.pop(island_id, None)).start()
 ```
 
-**코드 유효성 검증:**
+**코드 유효성 검증 (Z, I, O 제외):**
 ```python
-re.fullmatch(r"[A-Z0-9]{8}", code)  # 정확히 8자리, 대문자/숫자
+re.fullmatch(r"[A-HJ-NP-Y0-9]{8}", code)  # Z, I, O 제외한 8자리
+```
+
+**제목 최소 길이 검증:**
+```python
+if len(title) < 2:
+    return jsonify({"error": "제목은 2자 이상 입력해주세요."}), 400
 ```
 
 ### 5.2 프론트엔드 (static/app.js)
@@ -130,7 +142,30 @@ re.fullmatch(r"[A-Z0-9]{8}", code)  # 정확히 8자리, 대문자/숫자
 
 **카운트다운:** 1초 간격 DOM 업데이트, 만료 시 서버 재조회
 
+**입력 필터링:**
+```javascript
+const VALID_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXY0123456789';
+
+// input 이벤트: 허용 문자만 남기고 자동 대문자 변환
+// keydown 이벤트: 한글/특수문자 차단 + 힌트 표시
+// Z/I/O는 조용히 무시 (힌트 없음)
+```
+
 **API 기본 URL:** `const API_URL = ''` (같은 오리진)
+
+### 5.3 다국어 (static/i18n.js)
+
+```javascript
+const i18n = {
+    ko: { /* 한국어 텍스트 */ },
+    en: { /* English text */ },
+    ja: { /* 日本語テキスト */ },
+};
+
+function t(key) { /* 현재 언어의 텍스트 반환 */ }
+function setLang(lang) { /* 언어 변경 + localStorage 저장 */ }
+function applyTranslations() { /* DOM 텍스트 전체 교체 */ }
+```
 
 ---
 
@@ -156,6 +191,12 @@ curl http://localhost:5000/islands
 2. 폼에 제목/코드 입력 후 제출
 3. 목록에 표시되는지 확인
 4. 60초 후 자동 삭제되는지 확인
+5. **언어 전환** (상단 버튼) → 전체 UI 번역 확인
+6. **입력 필터링 테스트:**
+   - `abcd` 입력 → `ABCD`로 자동 변환
+   - `z`, `i`, `o` 입력 → 조용히 무시
+   - `한글`, `!@#` 입력 → 빨간 테두리 + 힌트 2초 표시
+   - 모바일 개발자 도구로 반응형 확인
 
 ---
 
@@ -193,6 +234,7 @@ uv run python app.py &
 | 포트 5000 사용 중 | 다른 프로세스 점유 | `lsof -i :5000` 후 종료 |
 | 한글 깨짐 | 터미널 인코딩 | UTF-8 설정 확인 |
 | 60초 후에도 목록에 남음 | 타이머/클린업 불일치 | `clean_expired()` 수동 호출 확인 |
+| 언어 전환 안 됨 | i18n.js 로드 실패 | 콘솔 에러 확인, `i18n.js`가 `app.js`보다 먼저 로드되는지 확인 |
 
 ---
 
@@ -230,5 +272,5 @@ uv sync
 ---
 
 *작성일: 2026-07-01*  
-*버전: 1.0*  
+*버전: 1.1*  
 *원칙: 문서 없는 코드 변경은 금지*
