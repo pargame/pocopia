@@ -27,7 +27,7 @@ const i18n = {
         errorTitleMin: "제목은 2자 이상 입력해주세요.",
         errorCodeLength: "코드는 정확히 8자리여야 합니다.",
         errorCodeInvalid: "Z, I, O를 제외한 알파벳 대문자와 숫자만 입력 가능합니다.",
-        codeInputHint: "⚠️ 영문 대문자와 숫자만 입력 가능합니다",
+        codeInputHint: "⚠️ 영어 대문자와 숫자만 입력 가능합니다",
         langName: "한국어",
     },
     en: {
@@ -58,7 +58,7 @@ const i18n = {
         errorTitleMin: "Title must be at least 2 characters.",
         errorCodeLength: "Code must be exactly 8 characters.",
         errorCodeInvalid: "Only uppercase A-Y (excl. Z, I, O) and numbers allowed.",
-        codeInputHint: "⚠️ Only uppercase letters and numbers allowed",
+        codeInputHint: "⚠️ Only English letters and numbers",
         langName: "English",
     },
     ja: {
@@ -89,7 +89,7 @@ const i18n = {
         errorTitleMin: "タイトルは2文字以上入力してください。",
         errorCodeLength: "コードは8文字である必要があります。",
         errorCodeInvalid: "Z, I, Oを除く大文字アルファベットと数字のみ入力可能です。",
-        codeInputHint: "⚠️ 大文字の英数字のみ入力可能です",
+        codeInputHint: "⚠️ 英語の大文字と数字のみ入力可能です",
         langName: "日本語",
     },
 };
