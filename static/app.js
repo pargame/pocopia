@@ -235,7 +235,7 @@ function renderIslands(data) {
             <div class="meta">
                 <span class="code ${revealed ? 'revealed' : ''}">${revealed ? esc(revealedCode) : ''}</span>
                 <button class="view-code-btn" data-island-id="${island.id}" ${revealed || cooling ? 'disabled' : ''}>${esc(t('viewCodeBtn'))}</button>
-                <span class="timer" data-expires-at="${Date.now() + island.remaining_seconds * 1000}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
+                <span class="timer" data-expires="${Date.now() + island.remaining_seconds * 1000}" data-remaining="${island.remaining_seconds}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
             </div>
         </div>`;
     }).join('');
@@ -252,14 +252,23 @@ function reRenderFromCache() {
 function startCountdown() {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
-        let expired = false;
-        const now = Date.now();
-        document.querySelectorAll('.timer').forEach(el => {
-            const expiresAt = parseInt(el.dataset.expiresAt, 10);
-            const r = Math.floor((expiresAt - now) / 1000);
-            el.textContent = r <= 0 ? (expired = true, t('expired')) : `${t('remaining')}: ${fmtTime(r)}`;
-        });
-        if (expired) fetchIslands();
+        try {
+            let expired = false;
+            const now = Date.now();
+            document.querySelectorAll('.timer').forEach(el => {
+                let expiresAt = Number(el.dataset.expires);
+                if (isNaN(expiresAt)) {
+                    const remaining = Number(el.dataset.remaining);
+                    expiresAt = now + (isNaN(remaining) ? 0 : remaining) * 1000;
+                    el.dataset.expires = expiresAt;
+                }
+                const r = Math.floor((expiresAt - now) / 1000);
+                el.textContent = r <= 0 ? (expired = true, t('expired')) : `${t('remaining')}: ${fmtTime(r)}`;
+            });
+            if (expired) fetchIslands();
+        } catch (err) {
+            console.error('countdown tick error:', err);
+        }
     }, 1000);
 }
 
