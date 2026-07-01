@@ -280,10 +280,11 @@ header p {
     letter-spacing: 1.5px;
     border: 1px solid #e0e0e0;
     word-break: break-all;
-    cursor: pointer;
     filter: blur(8px);
-    transition: filter 0.2s;
+    transition: filter 0.3s;
     user-select: none;
+    min-width: 80px;
+    text-align: center;
 }
 
 .island-card .code.revealed {
@@ -293,7 +294,34 @@ header p {
 
 .island-card.cooldown .code:not(.revealed) {
     filter: blur(8px);
-    pointer-events: none;
+}
+
+.view-code-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+    white-space: nowrap;
+}
+
+.view-code-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+}
+
+.view-code-btn:active {
+    transform: translateY(0);
+}
+
+.view-code-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .cooldown-banner {

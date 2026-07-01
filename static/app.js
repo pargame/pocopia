@@ -58,6 +58,33 @@ if (cooldownEndTime > Date.now()) {
 // 만료된 공개 코드 정리
 clearExpiredRevealedCodes();
 
+// 실시간으로 공개 코드 만료 체크 (1초 간격)
+setInterval(() => {
+    const revealed = getRevealedCodes();
+    const now = Date.now();
+    let changed = false;
+    for (const [id, time] of Object.entries(revealed)) {
+        if (now - time > COOLDOWN_SECONDS * 1000) {
+            delete revealed[id];
+            changed = true;
+            // DOM에서 해당 코드 다시 블러 처리
+            const card = document.querySelector(`.island-card[data-id="${id}"]`);
+            if (card) {
+                const codeEl = card.querySelector('.code');
+                if (codeEl) {
+                    codeEl.classList.remove('revealed');
+                    codeEl.textContent = t('viewCodeBtn');
+                }
+                const btn = card.querySelector('.view-code-btn');
+                if (btn) btn.disabled = false;
+            }
+        }
+    }
+    if (changed) {
+        localStorage.setItem(REVEALED_CODES_KEY, JSON.stringify(revealed));
+    }
+}, 1000);
+
 // ── 언어 선택 ──
 document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => setLang(btn.dataset.lang));
@@ -218,10 +245,12 @@ function hideCooldownBanner() {
     }
 }
 
-// ── 코드 클릭 핸들러 ──
-function handleCodeClick(e, code, islandId) {
+// ── 코드 보기 버튼 핸들러 ──
+function handleViewCode(e, code, islandId) {
     e.stopPropagation();
-    const codeEl = e.currentTarget;
+    const btn = e.currentTarget;
+    const card = btn.closest('.island-card');
+    const codeEl = card.querySelector('.code');
 
     // 이미 공개된 코드면 클립보드 복사만
     if (codeEl.classList.contains('revealed')) {
@@ -239,6 +268,9 @@ function handleCodeClick(e, code, islandId) {
     codeEl.textContent = code;
     navigator.clipboard.writeText(code);
     saveRevealedCode(islandId);
+
+    // 버튼 비활성화
+    btn.disabled = true;
 
     // 쿨타임 시작
     startCooldown();
@@ -330,12 +362,14 @@ function renderIslands(data) {
 
     container.innerHTML = data.map(island => {
         const revealed = isCodeRevealed(island.id);
+        const isCooling = isCooldownActive();
         return `
         <div class="island-card" data-id="${island.id}">
             <div class="title">🏝️ ${escapeHtml(island.title)}</div>
             ${island.description ? `<div class="description">${escapeHtml(island.description)}</div>` : ''}
             <div class="meta">
-                <span class="code ${revealed ? 'revealed' : ''}" onclick="handleCodeClick(event, '${island.code}', '${island.id}')">${revealed ? escapeHtml(island.code) : escapeHtml(t('clickToReveal'))}</span>
+                <span class="code ${revealed ? 'revealed' : ''}">${revealed ? escapeHtml(island.code) : ''}</span>
+                <button class="view-code-btn" onclick="handleViewCode(event, '${island.code}', '${island.id}')" ${revealed || isCooling ? 'disabled' : ''}>${escapeHtml(t('viewCodeBtn'))}</button>
                 <span class="timer" data-remaining="${island.remaining_seconds}">${t('remaining')}: ${island.remaining_seconds}${t('seconds')}</span>
             </div>
         </div>
