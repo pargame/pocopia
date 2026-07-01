@@ -274,7 +274,7 @@ function startCountdown() {
             const now = Date.now();
             document.querySelectorAll('.timer').forEach(el => {
                 const id = el.dataset.id;
-                if (id === 'pinned') {
+                if (el.classList.contains('pinned')) {
                     el.textContent = t('permanent');
                     return;
                 }

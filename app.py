@@ -17,13 +17,22 @@ CODE_PATTERN = re.compile(r"^[A-HJ-NP-Y0-9]{8}$")
 ADMIN_TOKEN = "pokopia-admin-2026"
 
 # ── 고정 클라우드섬 ──
-PINNED_ISLAND = {
-    "id": "pinned",
-    "title": "모든 템 복사 섬",
-    "description": "원하는 템을 찍어서 복사할 수 있는 곳입니다.",
-    "code": "LPDXPD6F",
-    "duration": 3600,
-}
+PINNED_ISLANDS = [
+    {
+        "id": "pinned-0",
+        "title": "모든 템 복사 섬",
+        "description": "원하는 템을 찍어서 복사할 수 있는 곳입니다.",
+        "code": "LPDXPD6F",
+        "duration": 3600,
+    },
+    {
+        "id": "pinned-1",
+        "title": "간판 섬",
+        "description": "포켓몬 게임에 실제 간판을 찍을 수 있습니다.",
+        "code": "CS8PGM1V",
+        "duration": 3600,
+    },
+]
 
 # ── 메모리 저장소 ──
 islands = {}           # {id: island_data}
@@ -67,21 +76,23 @@ def clean_expired():
         islands.pop(k, None)
 
 
-def init_pinned_island():
+def init_pinned_islands():
     """서버 시작 시 고정 클라우드섬이 없으면 생성"""
-    if "pinned" in islands:
+    if any(v.get("creator_ip") == "pinned" for v in islands.values()):
         return
     now = now_kst()
-    islands["pinned"] = {
-        "id": PINNED_ISLAND["id"],
-        "title": PINNED_ISLAND["title"],
-        "description": PINNED_ISLAND["description"],
-        "code": PINNED_ISLAND["code"],
-        "created_at": now,
-        "expires_at": now + timedelta(days=365*100),
-        "duration": PINNED_ISLAND["duration"],
-        "creator_ip": "pinned",
-    }
+    expires_at = now + timedelta(days=365*100)
+    for item in PINNED_ISLANDS:
+        islands[item["id"]] = {
+            "id": item["id"],
+            "title": item["title"],
+            "description": item["description"],
+            "code": item["code"],
+            "created_at": now,
+            "expires_at": expires_at,
+            "duration": item["duration"],
+            "creator_ip": "pinned",
+        }
 
 
 def clean_expired_cooldown():
@@ -191,7 +202,7 @@ def reveal_code(island_id):
 def delete_island(island_id):
     if island_id not in islands:
         return jsonify({"error": "not_found"}), 404
-    if island_id == "pinned" or islands[island_id].get("creator_ip") == "pinned":
+    if islands[island_id].get("creator_ip") == "pinned":
         return jsonify({"error": "forbidden"}), 403
     if islands[island_id].get("creator_ip") != get_client_ip():
         return jsonify({"error": "forbidden"}), 403
@@ -256,7 +267,7 @@ start_background_cleaner()
 
 
 # ── 고정 클라우드섬 초기화 ──
-init_pinned_island()
+init_pinned_islands()
 
 
 if __name__ == "__main__":
