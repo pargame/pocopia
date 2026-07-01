@@ -221,6 +221,7 @@ function renderIslands(data) {
     const container = document.getElementById('islands');
     const countEl = document.getElementById('count');
     const filtered = searchKeyword ? data.filter(i => i.title.toLowerCase().includes(searchKeyword.toLowerCase())) : data;
+    const cooling = isCooldownActive();
 
     countEl.textContent = `(${filtered.length})`;
 
@@ -234,7 +235,6 @@ function renderIslands(data) {
     container.innerHTML = filtered.map(island => {
         const revealed = isRevealed(island.id);
         const revealedCode = revealed ? getRevealedCode(island.id) : '';
-        const cooling = isCooldownActive();
         return `<div class="island-card" data-id="${island.id}">
             <div class="title">🏝️ ${esc(island.title)}</div>
             ${island.description ? `<div class="description">${esc(island.description)}</div>` : ''}
