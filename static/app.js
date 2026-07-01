@@ -205,7 +205,7 @@ async function fetchIslands() {
 function dataEqual(a, b) {
     if (a.length !== b.length) return false;
     for (let i = 0; i < a.length; i++) {
-        if (a[i].id !== b[i].id || a[i].title !== b[i].title || a[i].remaining_seconds !== b[i].remaining_seconds) return false;
+        if (a[i].id !== b[i].id || a[i].title !== b[i].title || a[i].description !== b[i].description) return false;
     }
     return true;
 }
@@ -235,7 +235,7 @@ function renderIslands(data) {
             <div class="meta">
                 <span class="code ${revealed ? 'revealed' : ''}">${revealed ? esc(revealedCode) : ''}</span>
                 <button class="view-code-btn" data-island-id="${island.id}" ${revealed || cooling ? 'disabled' : ''}>${esc(t('viewCodeBtn'))}</button>
-                <span class="timer" data-expires="${island.expires_at}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
+                <span class="timer" data-remaining="${island.remaining_seconds}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
             </div>
         </div>`;
     }).join('');
@@ -253,10 +253,11 @@ function startCountdown() {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
         let expired = false;
-        const now = Date.now();
         document.querySelectorAll('.timer').forEach(el => {
-            const expires = new Date(el.dataset.expires).getTime();
-            const r = Math.floor((expires - now) / 1000);
+            let r = parseInt(el.dataset.remaining, 10);
+            if (isNaN(r)) r = 0;
+            r = Math.max(0, r - 1);
+            el.dataset.remaining = r;
             el.textContent = r <= 0 ? (expired = true, t('expired')) : `${t('remaining')}: ${fmtTime(r)}`;
         });
         if (expired) fetchIslands();
@@ -335,3 +336,4 @@ applyTranslations();
 checkMaintenance();
 if (deleteAllBtn) deleteAllBtn.style.display = 'none';
 fetchIslands();
+setInterval(fetchIslands, 5000);
