@@ -12,6 +12,7 @@ const codeHint = document.getElementById('code-hint');
 
 // ── 상태 ──
 let islandsData = [];
+let islandTimers = {};  // { id: clientExpiresAt }
 let timerInterval = null;
 let cooldownInterval = null;
 let searchKeyword = '';
@@ -205,13 +206,18 @@ async function fetchIslands() {
 function dataEqual(a, b) {
     if (a.length !== b.length) return false;
     for (let i = 0; i < a.length; i++) {
-        if (a[i].id !== b[i].id || a[i].title !== b[i].title || a[i].description !== b[i].description) return false;
+        if (a[i].id !== b[i].id || a[i].title !== b[i].title || a[i].description !== b[i].description || a[i].remaining_seconds !== b[i].remaining_seconds) return false;
     }
     return true;
 }
 
 function renderIslands(data) {
     islandsData = data;
+    islandTimers = {};
+    data.forEach(island => {
+        islandTimers[island.id] = Date.now() + island.remaining_seconds * 1000;
+    });
+
     const container = document.getElementById('islands');
     const countEl = document.getElementById('count');
     const filtered = searchKeyword ? data.filter(i => i.title.toLowerCase().includes(searchKeyword.toLowerCase())) : data;
@@ -235,7 +241,7 @@ function renderIslands(data) {
             <div class="meta">
                 <span class="code ${revealed ? 'revealed' : ''}">${revealed ? esc(revealedCode) : ''}</span>
                 <button class="view-code-btn" data-island-id="${island.id}" ${revealed || cooling ? 'disabled' : ''}>${esc(t('viewCodeBtn'))}</button>
-                <span class="timer" data-expires="${Date.now() + island.remaining_seconds * 1000}" data-remaining="${island.remaining_seconds}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
+                <span class="timer" data-id="${island.id}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>
             </div>
         </div>`;
     }).join('');
@@ -251,18 +257,16 @@ function reRenderFromCache() {
 
 function startCountdown() {
     clearInterval(timerInterval);
+    console.log('startCountdown', Object.keys(islandTimers));
     timerInterval = setInterval(() => {
         try {
             let expired = false;
             const now = Date.now();
             document.querySelectorAll('.timer').forEach(el => {
-                let expiresAt = Number(el.dataset.expires);
-                if (isNaN(expiresAt)) {
-                    const remaining = Number(el.dataset.remaining);
-                    expiresAt = now + (isNaN(remaining) ? 0 : remaining) * 1000;
-                    el.dataset.expires = expiresAt;
-                }
+                const id = el.dataset.id;
+                const expiresAt = islandTimers[id];
                 const r = Math.floor((expiresAt - now) / 1000);
+                console.log('tick', id, r);
                 el.textContent = r <= 0 ? (expired = true, t('expired')) : `${t('remaining')}: ${fmtTime(r)}`;
             });
             if (expired) fetchIslands();
