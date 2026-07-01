@@ -12,7 +12,8 @@ const codeHint = document.getElementById('code-hint');
 
 // ── 상태 ──
 let islandsData = [];
-let countdownInterval = null;
+let timerInterval = null;
+let cooldownInterval = null;
 let searchKeyword = '';
 let filterMode = 'all';
 let cooldownEndTime = parseInt(localStorage.getItem(COOLDOWN_KEY) || '0', 10);
@@ -47,8 +48,8 @@ function startCooldown() {
     localStorage.setItem(COOLDOWN_KEY, cooldownEndTime.toString());
     document.querySelectorAll('.island-card').forEach(c => c.classList.add('cooldown'));
     showBanner(Math.ceil((cooldownEndTime - Date.now()) / 1000));
-    clearInterval(countdownInterval);
-    countdownInterval = setInterval(() => {
+    clearInterval(cooldownInterval);
+    cooldownInterval = setInterval(() => {
         const remaining = Math.ceil((cooldownEndTime - Date.now()) / 1000);
         if (remaining <= 0) endCooldown(); else updateBanner(remaining);
     }, 1000);
@@ -57,8 +58,8 @@ function startCooldown() {
 function endCooldown() {
     cooldownEndTime = 0;
     localStorage.removeItem(COOLDOWN_KEY);
-    clearInterval(countdownInterval);
-    countdownInterval = null;
+    clearInterval(cooldownInterval);
+    cooldownInterval = null;
     document.querySelectorAll('.island-card').forEach(c => c.classList.remove('cooldown'));
     hideBanner();
 }
@@ -74,7 +75,9 @@ function showBanner(sec) {
 function updateBanner(sec) { if (cooldownBanner) cooldownBanner.textContent = `${t('cooldownMsg')}: ${sec}${t('seconds')}`; }
 function hideBanner() { if (cooldownBanner) { cooldownBanner.remove(); cooldownBanner = null; } }
 
-if (cooldownEndTime > Date.now()) startCooldown();
+if (cooldownEndTime > Date.now()) {
+    startCooldown();
+}
 
 // ── 코드 입력 필터링 ──
 function isInvalidChar(ch) {
@@ -217,8 +220,8 @@ function renderIslands(data) {
 
     if (!data.length) {
         container.innerHTML = `<p class="empty">${esc(t(filterMode === 'mine' ? 'emptyMyMsg' : 'emptyMsg'))}</p>`;
-        clearInterval(countdownInterval);
-        countdownInterval = null;
+        clearInterval(timerInterval);
+        timerInterval = null;
         return;
     }
 
@@ -247,14 +250,14 @@ function reRenderFromCache() {
 }
 
 function startCountdown() {
-    clearInterval(countdownInterval);
-    countdownInterval = setInterval(() => {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
         let expired = false;
         const now = Date.now();
-        document.querySelectorAll('.timer').forEach(t => {
-            const expires = new Date(t.dataset.expires).getTime();
+        document.querySelectorAll('.timer').forEach(el => {
+            const expires = new Date(el.dataset.expires).getTime();
             const r = Math.floor((expires - now) / 1000);
-            t.textContent = r <= 0 ? (expired = true, t('expired')) : `${t('remaining')}: ${fmtTime(r)}`;
+            el.textContent = r <= 0 ? (expired = true, t('expired')) : `${t('remaining')}: ${fmtTime(r)}`;
         });
         if (expired) fetchIslands();
     }, 1000);
