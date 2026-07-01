@@ -58,8 +58,8 @@ def create_island():
     code = (data.get("code") or "").strip().upper()
 
     # 유효성 검증
-    if not title:
-        return jsonify({"error": "제목을 입력해주세요."}), 400
+    if len(title) < 2:
+        return jsonify({"error": "제목은 2자 이상 입력해주세요."}), 400
     if len(title) > 50:
         return jsonify({"error": "제목은 50자 이하여야 합니다."}), 400
     if len(description) > 200:
