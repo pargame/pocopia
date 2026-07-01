@@ -44,6 +44,7 @@ def get_islands():
             "created_at": island["created_at"].isoformat(),
             "expires_at": island["expires_at"].isoformat(),
             "remaining_seconds": max(0, int((island["expires_at"] - now).total_seconds())),
+            "duration": island.get("duration", 60),
         }
         result.append(item)
     return jsonify(result)
@@ -67,9 +68,15 @@ def create_island():
     if not re.fullmatch(r"[A-HJ-NP-Y0-9]{8}", code):
         return jsonify({"error": "코드는 정확히 8자리의 Z, I, O를 제외한 알파벳 대문자 또는 숫자여야 합니다."}), 400
 
+    # duration 검증 (초 단위)
+    duration = data.get("duration", 60)
+    VALID_DURATIONS = {60, 300, 1800, 3600}
+    if duration not in VALID_DURATIONS:
+        duration = 60
+
     island_id = str(uuid.uuid4())[:8]
     now = now_kst()
-    expires = now + timedelta(seconds=60)
+    expires = now + timedelta(seconds=duration)
 
     island = {
         "id": island_id,
@@ -78,9 +85,10 @@ def create_island():
         "code": code,
         "created_at": now,
         "expires_at": expires,
+        "duration": duration,
     }
     islands[island_id] = island
-    schedule_delete(island_id, delay=60)
+    schedule_delete(island_id, delay=duration)
 
     return jsonify({
         "id": island_id,
@@ -89,7 +97,8 @@ def create_island():
         "code": code,
         "created_at": now.isoformat(),
         "expires_at": expires.isoformat(),
-        "remaining_seconds": 60,
+        "remaining_seconds": duration,
+        "duration": duration,
     }), 201
 
 

@@ -34,6 +34,27 @@
                     <input type="text" id="code" name="code" maxlength="8" placeholder="예: 1234ABCD" required style="text-transform: uppercase;" inputmode="latin" lang="en">
                     <div id="code-hint" class="input-hint"></div>
                 </div>
+                <div class="form-group">
+                    <label class="duration-label">공유 기간</label>
+                    <div class="duration-options">
+                        <label class="duration-option">
+                            <input type="radio" name="duration" value="60" checked>
+                            <span>1분</span>
+                        </label>
+                        <label class="duration-option">
+                            <input type="radio" name="duration" value="300">
+                            <span>5분</span>
+                        </label>
+                        <label class="duration-option">
+                            <input type="radio" name="duration" value="1800">
+                            <span>30분</span>
+                        </label>
+                        <label class="duration-option">
+                            <input type="radio" name="duration" value="3600">
+                            <span>60분</span>
+                        </label>
+                    </div>
+                </div>
                 <button type="submit" class="btn-submit">클우드섬 공유하기</button>
             </form>
             <div id="message" class="message"></div>

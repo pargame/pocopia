@@ -116,11 +116,13 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
+    const duration = parseInt(document.querySelector('input[name="duration"]:checked').value, 10);
+
     try {
         const res = await fetch(`${API_URL}/islands`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, code }),
+            body: JSON.stringify({ title, description, code, duration }),
         });
 
         const data = await res.json();
@@ -132,6 +134,7 @@ form.addEventListener('submit', async (e) => {
 
         showMessage(t('successMsg'), 'success');
         form.reset();
+        document.querySelector('input[name="duration"][value="60"]').checked = true;
         fetchIslands();
     } catch (err) {
         showMessage(t('errorServer'), 'error');

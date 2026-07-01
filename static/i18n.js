@@ -17,7 +17,12 @@ const i18n = {
         remaining: "남은 시간",
         seconds: "초",
         expired: "만료됨",
-        successMsg: "클우드섬이 공유되었습니다! (60초 후 자동 삭제)",
+        successMsg: "클우드섬이 공유되었습니다! (자동 삭제됨)",
+        durationLabel: "공유 기간",
+        duration1m: "1분",
+        duration5m: "5분",
+        duration30m: "30분",
+        duration60m: "60분",
         errorServer: "서버 연결에 실패했습니다.",
         errorTitleMin: "제목은 2자 이상 입력해주세요.",
         errorCodeLength: "코드는 정확히 8자리여야 합니다.",
@@ -43,7 +48,12 @@ const i18n = {
         remaining: "Time left",
         seconds: "s",
         expired: "Expired",
-        successMsg: "Cloud island shared! (Auto-deletes in 60s)",
+        successMsg: "Cloud island shared! (Auto-deletes)",
+        durationLabel: "Duration",
+        duration1m: "1 min",
+        duration5m: "5 min",
+        duration30m: "30 min",
+        duration60m: "60 min",
         errorServer: "Server connection failed.",
         errorTitleMin: "Title must be at least 2 characters.",
         errorCodeLength: "Code must be exactly 8 characters.",
@@ -69,7 +79,12 @@ const i18n = {
         remaining: "残り時間",
         seconds: "秒",
         expired: "期限切れ",
-        successMsg: "クラウド島を共有しました！（60秒後に自動削除）",
+        successMsg: "クラウド島を共有しました！（自動削除）",
+        durationLabel: "共有期間",
+        duration1m: "1分",
+        duration5m: "5分",
+        duration30m: "30分",
+        duration60m: "60分",
         errorServer: "サーバー接続に失敗しました。",
         errorTitleMin: "タイトルは2文字以上入力してください。",
         errorCodeLength: "コードは8文字である必要があります。",
@@ -111,6 +126,15 @@ function applyTranslations() {
     document.getElementById('code').placeholder = t('codePlaceholder');
 
     document.querySelector('.btn-submit').textContent = t('submitBtn');
+
+    // Duration labels
+    const durationLabelEl = document.querySelector('.duration-label');
+    if (durationLabelEl) durationLabelEl.textContent = t('durationLabel');
+    const durationLabels = document.querySelectorAll('.duration-option span');
+    if (durationLabels[0]) durationLabels[0].textContent = t('duration1m');
+    if (durationLabels[1]) durationLabels[1].textContent = t('duration5m');
+    if (durationLabels[2]) durationLabels[2].textContent = t('duration30m');
+    if (durationLabels[3]) durationLabels[3].textContent = t('duration60m');
 
     // List
     const listH2 = document.querySelector('.island-list h2');

@@ -135,6 +135,51 @@ header p {
     opacity: 1;
 }
 
+/* ── Duration Options ── */
+.duration-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.duration-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.duration-option {
+    flex: 1;
+    min-width: 60px;
+    cursor: pointer;
+}
+
+.duration-option input[type="radio"] {
+    display: none;
+}
+
+.duration-option span {
+    display: block;
+    text-align: center;
+    padding: 10px 8px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.2s;
+    background: #fff;
+}
+
+.duration-option input[type="radio"]:checked + span {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-weight: 600;
+}
+
 .btn-submit {
     width: 100%;
     padding: 16px;
