@@ -30,6 +30,7 @@ const i18n = {
         codeInputHint: "⚠️ 영어 대문자와 숫자만 입력 가능합니다",
         viewCodeBtn: "코드 보기",
         cooldownMsg: "쿨타임",
+        searchPlaceholder: "제목으로 검색...",
         langName: "한국어",
     },
     en: {
@@ -63,6 +64,7 @@ const i18n = {
         codeInputHint: "⚠️ Only English letters and numbers",
         viewCodeBtn: "View Code",
         cooldownMsg: "Cooldown",
+        searchPlaceholder: "Search by title...",
         langName: "English",
     },
     ja: {
@@ -96,6 +98,7 @@ const i18n = {
         codeInputHint: "⚠️ 英語の大文字と数字のみ入力可能です",
         viewCodeBtn: "コードを見る",
         cooldownMsg: "クールタイム",
+        searchPlaceholder: "タイトルで検索...",
         langName: "日本語",
     },
 };
@@ -132,6 +135,10 @@ function applyTranslations() {
     document.getElementById('code').placeholder = t('codePlaceholder');
 
     document.querySelector('.btn-submit').textContent = t('submitBtn');
+
+    // Search placeholder
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.placeholder = t('searchPlaceholder');
 
     // Duration labels
     const durationLabelEl = document.querySelector('.duration-label');

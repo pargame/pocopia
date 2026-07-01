@@ -343,13 +343,19 @@ async function fetchIslands() {
 
 let islandsData = [];
 let countdownInterval = null;
+let searchKeyword = '';
 
 function renderIslands(data) {
     islandsData = data;
     const container = document.getElementById('islands');
     const countEl = document.getElementById('count');
 
-    countEl.textContent = `(${data.length})`;
+    // 검색 필터링
+    const filtered = searchKeyword
+        ? data.filter(island => island.title.toLowerCase().includes(searchKeyword.toLowerCase()))
+        : data;
+
+    countEl.textContent = `(${filtered.length})`;
 
     if (data.length === 0) {
         container.innerHTML = `<p class="empty">${escapeHtml(t('emptyMsg'))}</p>`;
@@ -360,7 +366,7 @@ function renderIslands(data) {
         return;
     }
 
-    container.innerHTML = data.map(island => {
+    container.innerHTML = filtered.map(island => {
         const revealed = isCodeRevealed(island.id);
         const isCooling = isCooldownActive();
         return `
@@ -413,6 +419,15 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ── 검색 ──
+const searchInput = document.getElementById('searchInput');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        searchKeyword = e.target.value.trim();
+        renderIslands(islandsData);
+    });
 }
 
 // ── 초기화 ──

@@ -226,6 +226,40 @@ header p {
     color: #721c24;
 }
 
+/* ── List Header ── */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.list-header h2 {
+    margin-bottom: 0;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
 /* ── Island List ── */
 .islands {
     display: flex;
