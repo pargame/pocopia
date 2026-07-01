@@ -25,16 +25,31 @@ function showCodeHint(show) {
     }
 }
 
+// 허용되지 않는 문자인지 확인 (한글, 특수문자 등만 체크. Z/I/O는 제외된 알파벳이므로 힌트 없음)
+function isTrulyInvalidChar(ch) {
+    const upper = ch.toUpperCase();
+    // 알파벳 A-Z 또는 숫자 0-9 중 하나인지 먼저 확인
+    const isAsciiLetter = upper >= 'A' && upper <= 'Z';
+    const isDigit = upper >= '0' && upper <= '9';
+    if (isAsciiLetter || isDigit) {
+        // Z, I, O는 게임 규칙상 제외된 알파벳 → 힌트 없이 조용히 무시
+        return false;
+    }
+    // 그 외 (한글, 특수문자, 소문자 등) → 힌트 표시
+    return true;
+}
+
 codeInput.addEventListener('input', (e) => {
     let value = e.target.value.toUpperCase();
     let filtered = '';
-    let hadInvalid = false;
+    let hadTrulyInvalid = false;
     for (const ch of value) {
         if (VALID_CODE_CHARS.includes(ch)) {
             filtered += ch;
-        } else {
-            hadInvalid = true;
+        } else if (isTrulyInvalidChar(ch)) {
+            hadTrulyInvalid = true;
         }
+        // Z, I, O는 여기서 걸러지지만 hadTrulyInvalid에는 포함 안 됨
     }
     // 8자 초과 자르기
     if (filtered.length > 8) {
@@ -42,10 +57,9 @@ codeInput.addEventListener('input', (e) => {
     }
     e.target.value = filtered;
 
-    // 한글/잘못된 문자 입력 시 힌트 표시
-    if (hadInvalid) {
+    // 한글/특수문자 등만 힌트 표시 (Z/I/O는 제외)
+    if (hadTrulyInvalid) {
         showCodeHint(true);
-        // 2초 후 자동 숨김
         clearTimeout(codeHint._timer);
         codeHint._timer = setTimeout(() => showCodeHint(false), 2000);
     }
@@ -65,12 +79,15 @@ codeInput.addEventListener('keydown', (e) => {
     }
 
     const ch = e.key.toUpperCase();
-    // 한글/특수문자/소문자 등 차단
+    // Z, I, O 또는 한글/특수문자 등 차단
     if (!VALID_CODE_CHARS.includes(ch)) {
         e.preventDefault();
-        showCodeHint(true);
-        clearTimeout(codeHint._timer);
-        codeHint._timer = setTimeout(() => showCodeHint(false), 2000);
+        // 한글/특수문자 등만 힌트 표시 (Z/I/O는 조용히 무시)
+        if (isTrulyInvalidChar(e.key)) {
+            showCodeHint(true);
+            clearTimeout(codeHint._timer);
+            codeHint._timer = setTimeout(() => showCodeHint(false), 2000);
+        }
     }
 });
 
