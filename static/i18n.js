@@ -49,6 +49,8 @@ const i18n = {
         infoAbuseDesc: "IP당 최대 2개 게시물. 코드 보기 30초 쿨타임.",
         infoPrivacy: "개인정보",
         infoPrivacyDesc: "로그인 불필요. IP 주소는 속도 제한용으로만 사용되며 공유되지 않습니다.",
+        infoContact: "문의",
+        infoContactDesc: "001201parg@gmail.com",
         deleteAllMine: "내 공유섬 모두 삭제",
         deleteSuccess: "내 게시물이 모두 삭제되었습니다.",
         emptyMyMsg: "내가 공유한 클라우드섬이 없습니다.",
@@ -104,6 +106,8 @@ const i18n = {
         infoAbuseDesc: "Max 2 posts per IP. 30-second cooldown between code reveals.",
         infoPrivacy: "Privacy",
         infoPrivacyDesc: "No login required. IP addresses are used only for rate limiting and are not shared.",
+        infoContact: "Contact",
+        infoContactDesc: "001201parg@gmail.com",
         deleteAllMine: "Delete All My Posts",
         deleteSuccess: "All your posts have been deleted.",
         emptyMyMsg: "You haven't shared any cloud islands yet.",
@@ -159,6 +163,8 @@ const i18n = {
         infoAbuseDesc: "IPあたり最大2つの投稿。コード表示の30秒クールタイム。",
         infoPrivacy: "プライバシー",
         infoPrivacyDesc: "ログイン不要。IPアドレスは速度制限用のみで共有されません。",
+        infoContact: "お問い合わせ",
+        infoContactDesc: "001201parg@gmail.com",
         deleteAllMine: "自分の投稿をすべて削除",
         deleteSuccess: "自分の投稿がすべて削除されました。",
         emptyMyMsg: "まだクラウド島を共有していません。",
@@ -243,8 +249,8 @@ function applyTranslations() {
     });
 
     // Info panel
-    const infoIds = ['infoStorage','infoIp','infoAbuse','infoPrivacy'];
-    const descIds = ['infoStorageDesc','infoIpDesc','infoAbuseDesc','infoPrivacyDesc'];
+    const infoIds = ['infoStorage','infoIp','infoAbuse','infoPrivacy','infoContact'];
+    const descIds = ['infoStorageDesc','infoIpDesc','infoAbuseDesc','infoPrivacyDesc','infoContactDesc'];
     infoIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = t(id);
