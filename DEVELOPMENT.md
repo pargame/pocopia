@@ -16,12 +16,25 @@
 
 ## 2. 시작하기
 
+### 로컬 개발
+
 ```bash
 git clone https://github.com/pargame/pocopia.git
 cd pocopia
 uv sync
 uv run python app.py
 # → http://localhost:5000
+```
+
+### 프로덕션 실행 (LaunchAgent)
+
+```bash
+# LaunchAgent 등록 (최초 1회)
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
+
+# 서버 시작/종료
+pokopia-start
+pokopia-stop
 ```
 
 ---
@@ -67,10 +80,11 @@ pocopia/
 
 ### 프론트엔드
 - 5초 폴리로 목록 갱신
-- 1초 카운트다운 타이머
+- 1초 카운트다운 타이머 (브라우저 측 `Date.now()` 기반)
 - 입력 실시간 필터링 (Z/I/O/소문자/한글/특수문자 차단)
 - 다국어 지원 (한국어/English/日本語)
 - 반응형 디자인
+- 정적 파일 캐시 버스팅 (`?v=<git-hash>`)
 
 ---
 
@@ -84,17 +98,25 @@ pocopia/
 - 변경 시 커밋 & 푸시까지 한 번에 처리
 
 ### 프로덕션 실행
+macOS LaunchAgent로 등록하여 실행합니다.
+
 ```bash
-uv run gunicorn -w 1 -b 0.0.0.0:5000 app:app
+# 최초 등록
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
+
+# 시작 / 종료
+launchctl start gui/$(id -u)/com.pokopia.gunicorn
+launchctl bootout gui/$(id -u)/com.pokopia.gunicorn
 ```
 
 ### zsh 단축 명령어 (`.zshrc`에 정의)
 | 명령어 | 설명 |
 |--------|------|
-| `pokopia-start` | 서버 시작 |
-| `pokopia-stop` | 서버 종료 |
+| `pokopia-start` | 서버 시작 (launchd) |
+| `pokopia-stop` | 서버 종료 (launchd) |
 | `pokopia-alert` | 종료 예고 배너 ON |
-| `pokopia-status` | 상태 확인 |
+| `pokopia-alert-off` | 종료 예고 배너 OFF |
+| `pokopia-status` | 상태 확인 (launchd + API) |
 
 ---
 
@@ -114,10 +136,10 @@ uv run gunicorn -w 1 -b 0.0.0.0:5000 app:app
 |------|------|
 | `ModuleNotFoundError: flask` | `uv sync` |
 | 포트 5000 사용 중 | `lsof -i :5000` 후 종료 |
-| 캐시 문제 | `./deploy.sh` 실행 또는 브라우저 강력 새로고침 |
+| 캐시 문제 | `./deploy.sh` 실행. 정적 파일에 `Cache-Control: no-cache` 헤더 적용 |
 | 한글 깨짐 | 터미널 UTF-8 설정 확인 |
 
 ---
 
 *작성일: 2026-07-02*  
-*버전: 2.0*
+*버전: 2.1*

@@ -10,18 +10,18 @@
 
 ## 🖥️ 서버 관리 (zsh 단축 명령어)
 
-터미널에서 아래 명령어로 서버를 관리할 수 있습니다.
+터미널에서 아래 명령어로 서버를 관리할 수 있습니다. macOS **LaunchAgent**로 등록되어 있어 노트북을 닫아도 서버가 유지되며, 재부팅 후에는 `pokopia-start`로 직접 시작합니다.
 
 | 명령어 | 설명 |
 |--------|------|
-| `pokopia-start` | 서버 시작 (이미 실행 중이면 무시) |
+| `pokopia-start` | 서버 시작 (launchd) |
 | `pokopia-stop` | 서버 즉시 종료 |
 | `pokopia-alert` | 종료 예고 배너 ON |
 | `pokopia-alert-off` | 종료 예고 배너 OFF |
 | `pokopia-status` | 서버 상태, 예고 문구, 활성 게시물 수 확인 |
 
 ```bash
-# 예시: 서버 종료 전 예고 → 1분 후 종료
+# 예시: 서버 종료 전 예고 → 종료
 pokopia-alert  # 노란 배너 표시
 # → 사용자들에게 "잠시 후 서버가 재시작됩니다" 안내
 pokopia-stop   # 서버 종료
@@ -51,6 +51,7 @@ pokopia-stop   # 서버 종료
 | Python | CPython | 3.13 |
 | 백엔드 | Flask | 3.1.3 |
 | 서버 | gunicorn | 26.0.0 |
+| 백그라운드 실행 | macOS launchd (LaunchAgent) | — |
 | 데이터 저장 | 메모리 내장 구조 (Python dict) | — |
 | 프론트엔드 | 순수 HTML + CSS + JavaScript | — |
 | 외부 접근 | Cloudflare Tunnel | — |
@@ -59,7 +60,9 @@ pokopia-stop   # 서버 종료
 
 ## 🚀 실행 방법
 
-### 로컬 실행
+### 프로덕션 (권장)
+
+macOS LaunchAgent로 등록하여 노트북을 닫아도 백그라운드에서 실행됩니다.
 
 ```bash
 # 저장소 클론
@@ -69,21 +72,30 @@ cd pocopia
 # 의존성 설치 (uv가 가상환경 자동 생성)
 uv sync
 
-# 서버 실행 (gunicorn, 4워커)
-uv run gunicorn -w 4 -b 0.0.0.0:5000 app:app
+# LaunchAgent 등록 (최초 1회)
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
 
-# 브라우저에서 접속
+# 서버 시작
+pokopia-start
+# 또는
+# launchctl start gui/$(id -u)/com.pokopia.gunicorn
+
+# Cloudflare Tunnel 실행 (별도 터미널)
+cloudflared tunnel run --token <YOUR_TOKEN>
+```
+
+### 로컬 개발
+
+```bash
+uv run python app.py
 # → http://localhost:5000
 ```
 
-### 프로덕션 (Cloudflare Tunnel)
+### 배포
 
 ```bash
-# gunicorn 백그라운드 실행
-uv run gunicorn -w 4 -b 0.0.0.0:5000 app:app &
-
-# Cloudflare Tunnel 실행
-cloudflared tunnel run --token <YOUR_TOKEN>
+# static 파일 캐시 버스팅 자동화 (Git 커밋 해시 기반)
+./deploy.sh
 ```
 
 ---
@@ -122,6 +134,8 @@ pokopia/
 ├── app.py              # Flask 서버
 ├── pyproject.toml      # 프로젝트 설정
 ├── uv.lock            # 의존성 lock
+├── deploy.sh          # 캐시 버스팅 자동 배포 스크립트
+├── gunicorn.log       # 서버 로그
 ├── .gitignore         # 보안: 민감 파일 제외
 ├── pokopia-plan.md    # 프로젝트 계획서
 ├── DEVELOPMENT.md     # 개발 가이드
@@ -161,5 +175,5 @@ MIT License
 ---
 
 *작성일: 2026-07-02*  
-*버전: 1.3*  
+*버전: 2.0*  
 *사이트: https://pokoclouds.com*
