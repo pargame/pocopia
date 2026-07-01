@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -9,46 +10,52 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     color: #333;
-    padding: 20px;
+    padding: 16px;
+    -webkit-font-smoothing: antialiased;
 }
 
 .container {
     max-width: 600px;
     margin: 0 auto;
+    width: 100%;
 }
 
+/* ── Header ── */
 header {
     text-align: center;
     color: #fff;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
 }
 
 header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 8px;
+    font-size: clamp(1.6rem, 6vw, 2.5rem);
+    margin-bottom: 6px;
 }
 
 header p {
-    font-size: 0.95rem;
+    font-size: clamp(0.8rem, 3vw, 0.95rem);
     opacity: 0.9;
+    line-height: 1.4;
 }
 
+/* ── Cards ── */
 .upload-form,
 .island-list {
     background: #fff;
     border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 16px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
 .upload-form h2,
 .island-list h2 {
-    font-size: 1.2rem;
-    margin-bottom: 16px;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    margin-bottom: 14px;
     color: #444;
 }
 
+/* ── Form ── */
 .form-group {
     margin-bottom: 14px;
 }
@@ -69,11 +76,12 @@ header p {
 
 .form-group input {
     width: 100%;
-    padding: 12px 14px;
+    padding: 14px 16px;
     border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
+    border-radius: 12px;
+    font-size: 16px;
     transition: border-color 0.2s;
+    min-height: 48px;
 }
 
 .form-group input:focus {
@@ -83,15 +91,17 @@ header p {
 
 .btn-submit {
     width: 100%;
-    padding: 14px;
+    padding: 16px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: transform 0.15s, opacity 0.15s;
+    min-height: 52px;
+    touch-action: manipulation;
 }
 
 .btn-submit:hover {
@@ -100,15 +110,17 @@ header p {
 }
 
 .btn-submit:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
 }
 
+/* ── Message ── */
 .message {
     margin-top: 12px;
-    padding: 10px 14px;
-    border-radius: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
     font-size: 0.9rem;
     display: none;
+    line-height: 1.5;
 }
 
 .message.success {
@@ -123,6 +135,7 @@ header p {
     color: #721c24;
 }
 
+/* ── Island List ── */
 .islands {
     display: flex;
     flex-direction: column;
@@ -131,7 +144,7 @@ header p {
 
 .island-card {
     background: #f8f9fa;
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 16px;
     border-left: 4px solid #667eea;
     transition: transform 0.15s;
@@ -142,17 +155,19 @@ header p {
 }
 
 .island-card .title {
-    font-size: 1.05rem;
+    font-size: clamp(0.95rem, 4vw, 1.05rem);
     font-weight: 700;
     color: #333;
     margin-bottom: 4px;
+    line-height: 1.4;
 }
 
 .island-card .description {
     font-size: 0.9rem;
     color: #666;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     word-break: break-word;
+    line-height: 1.5;
 }
 
 .island-card .meta {
@@ -160,24 +175,27 @@ header p {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
 }
 
 .island-card .code {
-    font-family: "SF Mono", Monaco, monospace;
-    font-size: 1.1rem;
+    font-family: "SF Mono", Monaco, "Courier New", monospace;
+    font-size: clamp(1rem, 4vw, 1.15rem);
     font-weight: 700;
     color: #667eea;
     background: #fff;
-    padding: 4px 10px;
-    border-radius: 6px;
-    letter-spacing: 1px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    letter-spacing: 1.5px;
+    border: 1px solid #e0e0e0;
+    word-break: break-all;
 }
 
 .island-card .timer {
     font-size: 0.85rem;
     font-weight: 600;
     color: #e74c3c;
+    white-space: nowrap;
 }
 
 .empty {
@@ -185,15 +203,89 @@ header p {
     color: #999;
     padding: 30px 0;
     font-size: 0.95rem;
+    line-height: 1.6;
 }
 
-@media (max-width: 480px) {
-    header h1 {
-        font-size: 2rem;
+/* ── Tablet ── */
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
     }
 
     .upload-form,
     .island-list {
         padding: 18px;
+        border-radius: 14px;
+    }
+}
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    header {
+        margin-bottom: 18px;
+    }
+
+    .upload-form,
+    .island-list {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    .form-group input {
+        padding: 12px 14px;
+        border-radius: 10px;
+    }
+
+    .btn-submit {
+        padding: 14px;
+        border-radius: 10px;
+    }
+
+    .island-card {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .island-card .meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .island-card .code {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* ── Small Mobile ── */
+@media (max-width: 360px) {
+    body {
+        padding: 8px;
+    }
+
+    .upload-form,
+    .island-list {
+        padding: 14px;
+    }
+
+    .form-group input {
+        font-size: 15px;
+    }
+}
+
+/* ── Landscape / Short Height ── */
+@media (max-height: 500px) {
+    header {
+        margin-bottom: 12px;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
     }
 }
