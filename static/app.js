@@ -27,7 +27,7 @@ form.addEventListener('submit', async (e) => {
             return;
         }
 
-        showMessage('큐우드섬이 공유되었습니다! (60초 후 자동 삭제)', 'success');
+        showMessage('클우드섬이 공유되었습니다! (60초 후 자동 삭제)', 'success');
         form.reset();
         fetchIslands();
     } catch (err) {
