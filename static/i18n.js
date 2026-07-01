@@ -152,7 +152,7 @@ const i18n = {
         viewCodeBtn: "コードを見る",
         cooldownMsg: "クールタイム",
         searchPlaceholder: "タイトルで検索...",
-        refreshHint: "ページを更新してリストを最新にします。"
+        refreshHint: "ページを更新してリストを最新にします。",
         filterAll: "すべて",
         filterMine: "自分の投稿",
         infoStorage: "データ保存",
