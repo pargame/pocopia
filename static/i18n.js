@@ -56,6 +56,10 @@ const i18n = {
         deleteAllMine: "내 게시 모두 삭제",
         deleteSuccess: "내 게시물이 모두 삭제되었습니다.",
         emptyMyMsg: "내가 공유한 클라우드섬이 없습니다.",
+        pinnedIslands: {
+            'pinned-0': { title: "모든 템 복사 섬", description: "원하는 템을 찍어서 복사할 수 있는 곳입니다." },
+            'pinned-1': { title: "간판 섬", description: "포켓몬 게임에 실제 등장했던 간판을 찍을 수 있습니다." },
+        },
         langName: "한국어",
     },
     en: {
@@ -115,6 +119,10 @@ const i18n = {
         deleteAllMine: "Delete All My Posts",
         deleteSuccess: "All your posts have been deleted.",
         emptyMyMsg: "You haven't shared any cloud islands yet.",
+        pinnedIslands: {
+            'pinned-0': { title: "All Items Copy Island", description: "Take a photo of any item you want to copy." },
+            'pinned-1': { title: "Signboard Island", description: "Take photos of signboards that actually appeared in Pokémon games." },
+        },
         langName: "English",
     },
     ja: {
@@ -174,6 +182,10 @@ const i18n = {
         deleteAllMine: "自分の投稿をすべて削除",
         deleteSuccess: "自分の投稿がすべて削除されました。",
         emptyMyMsg: "まだクラウド島を共有していません。",
+        pinnedIslands: {
+            'pinned-0': { title: "全アイテムコピー島", description: "好きなアイテムを撮影してコピーできます。" },
+            'pinned-1': { title: "看板島", description: "ポケモンゲームに実際に登場した看板を撮影できます。" },
+        },
         langName: "日本語",
     },
 };

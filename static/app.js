@@ -206,7 +206,7 @@ async function fetchIslands() {
 function dataEqual(a, b) {
     if (a.length !== b.length) return false;
     for (let i = 0; i < a.length; i++) {
-        if (a[i].id !== b[i].id || a[i].title !== b[i].title || a[i].description !== b[i].description || a[i].remaining_seconds !== b[i].remaining_seconds) return false;
+        if (a[i].id !== b[i].id || a[i].remaining_seconds !== b[i].remaining_seconds) return false;
     }
     return true;
 }
@@ -220,6 +220,7 @@ function renderIslands(data) {
 
     const container = document.getElementById('islands');
     const countEl = document.getElementById('count');
+    const pinnedI18n = t('pinnedIslands') || {};
     let filtered;
     if (filterMode === 'pinned') {
         filtered = data.filter(i => i.is_pinned);
@@ -241,14 +242,20 @@ function renderIslands(data) {
     }
 
     container.innerHTML = filtered.map(island => {
+        const pinnedMeta = island.is_pinned ? (pinnedI18n[island.id] || null) : null;
+        const displayTitle = pinnedMeta ? pinnedMeta.title : island.title;
+        const displayDesc = pinnedMeta ? pinnedMeta.description : island.description;
         const revealed = isRevealed(island.id);
         const revealedCode = revealed ? getRevealedCode(island.id) : '';
+        const codeBlock = island.is_pinned
+            ? `<span class="code revealed">${esc(island.code)}</span>`
+            : `<span class="code ${revealed ? 'revealed' : ''}">${revealed ? esc(revealedCode) : ''}</span>
+               <button class="view-code-btn" data-island-id="${island.id}" ${revealed || cooling ? 'disabled' : ''}>${esc(t('viewCodeBtn'))}</button>`;
         return `<div class="island-card" data-id="${island.id}">
-            <div class="title">🏝️ ${esc(island.title)}</div>
-            ${island.description ? `<div class="description">${esc(island.description)}</div>` : ''}
+            <div class="title">🏝️ ${esc(displayTitle)}</div>
+            ${displayDesc ? `<div class="description">${esc(displayDesc)}</div>` : ''}
             <div class="meta">
-                <span class="code ${revealed ? 'revealed' : ''}">${revealed ? esc(revealedCode) : ''}</span>
-                <button class="view-code-btn" data-island-id="${island.id}" ${revealed || cooling ? 'disabled' : ''}>${esc(t('viewCodeBtn'))}</button>
+                ${codeBlock}
                 ${island.is_pinned
                 ? `<span class="timer pinned" data-id="${island.id}">${t('permanent')}</span>`
                 : `<span class="timer" data-id="${island.id}">${t('remaining')}: ${fmtTime(island.remaining_seconds)}</span>`}

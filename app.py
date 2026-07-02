@@ -102,6 +102,7 @@ def clean_expired_cooldown():
 
 
 def build_item(island, now):
+    is_pinned = island.get("creator_ip") == "pinned"
     return {
         "id": island["id"],
         "title": island["title"],
@@ -110,8 +111,8 @@ def build_item(island, now):
         "expires_at": island["expires_at"].isoformat(),
         "remaining_seconds": max(0, int((island["expires_at"] - now).total_seconds())),
         "duration": island.get("duration", 60),
-        "code": None,
-        "is_pinned": island.get("creator_ip") == "pinned",
+        "code": island["code"] if is_pinned else None,
+        "is_pinned": is_pinned,
     }
 
 
