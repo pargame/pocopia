@@ -228,7 +228,6 @@ function renderIslands(data, allIslands = data, myIslands = []) {
     });
 
     const container = document.getElementById('islands');
-    const countEl = document.getElementById('count');
     const pinnedI18n = t('pinnedIslands') || {};
     let filtered;
     if (filterMode === 'pinned') {
@@ -241,7 +240,6 @@ function renderIslands(data, allIslands = data, myIslands = []) {
     }
     const cooling = isCooldownActive();
 
-    countEl.textContent = `(${filtered.length})`;
     updateCounts(allIslands, myIslands);
 
     if (!data.length) {
