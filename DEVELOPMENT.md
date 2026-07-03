@@ -26,12 +26,12 @@ uv run python app.py
 # → http://localhost:5000
 ```
 
-### 프로덕션 실행 (LaunchAgent)
+### 프로덕션 실행 (백그라운드)
 
 ```bash
-# LaunchAgent 등록 (최초 1회)
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.cloudflared.plist
+# .zshrc에 alias 등록 (최초 1회)
+echo 'source $HOME/repos/pocopia/scripts/pokopia.zsh' >> ~/.zshrc
+source ~/.zshrc
 
 # 서버 + Cloudflare Tunnel 시작/종료
 pokopia-start
@@ -107,19 +107,20 @@ pocopia/
 - 변경 시 커밋 & 푸시까지 한 번에 처리
 
 ### 프로덕션 실행
-macOS LaunchAgent로 등록하여 실행합니다.
+zsh alias로 백그라운드에서 실행합니다. 노트북을 닫거나 재부팅하면 종료됩니다.
 
 ```bash
-# 최초 등록
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
+# .zshrc에 alias 등록
+echo 'source $HOME/repos/pocopia/scripts/pokopia.zsh' >> ~/.zshrc
+source ~/.zshrc
 
 # 시작 / 종료
-launchctl start gui/$(id -u)/com.pokopia.gunicorn
-launchctl bootout gui/$(id -u)/com.pokopia.gunicorn
+pokopia-start
+pokopia-stop
 ```
 
 ### zsh 단축 명령어
-`scripts/pokopia.zsh`에 정의되어 있습니다. `.zshrc`에서 `source /Users/pargame/repos/pocopia/scripts/pokopia.zsh`로 불러오거나, 내용을 직접 복사해서 사용하세요.
+`scripts/pokopia.zsh`에 정의되어 있습니다. `.zshrc`에서 `source $HOME/repos/pocopia/scripts/pokopia.zsh`로 불러오거나, 내용을 직접 복사해서 사용하세요.
 
 | 명령어 | 설명 |
 |--------|------|

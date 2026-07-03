@@ -14,14 +14,14 @@
 
 ```bash
 # .zshrc 맨 아래에 추가
-source /Users/pargame/repos/pocopia/scripts/pokopia.zsh
+source $HOME/repos/pocopia/scripts/pokopia.zsh
 ```
 
-macOS **LaunchAgent**로 등록되어 백그라운드에서 실행되지만, 노트북 뚜껑을 닫으면 macOS sleep 상태가 되어 외부 접속이 끊깁니다. 재부팅 후에는 `pokopia-start` 한 번으로 둘 다 직접 시작합니다.
+터미널에서 `pokopia-start` 한 번으로 서버와 Cloudflare Tunnel을 백그라운드에서 시작합니다. 노트북을 닫거나 재부팅하면 프로세스가 종료되며, 다시 켜진 후 `pokopia-start`로 시작하면 됩니다.
 
 | 명령어 | 설명 |
 |--------|------|
-| `pokopia-start` | 서버 + Cloudflare Tunnel 시작 (launchd) |
+| `pokopia-start` | 서버 + Cloudflare Tunnel 백그라운드 시작 |
 | `pokopia-stop` | 서버 + Cloudflare Tunnel 종료 |
 | `pokopia-alert` | 종료 예고 배너 ON |
 | `pokopia-alert-off` | 종료 예고 배너 OFF |
@@ -62,7 +62,7 @@ pokopia-stop   # 서버 종료
 | Python | CPython | 3.13 |
 | 백엔드 | Flask | 3.1.3 |
 | 서버 | gunicorn | 26.0.0 |
-| 백그라운드 실행 | macOS launchd (LaunchAgent) | — |
+| 백그라운드 실행 | zsh alias (`nohup`) | — |
 | 데이터 저장 | 메모리 내장 구조 (Python dict) | — |
 | 프론트엔드 | 순수 HTML + CSS + JavaScript | — |
 | 외부 접근 | Cloudflare Tunnel | — |
@@ -73,19 +73,23 @@ pokopia-stop   # 서버 종료
 
 ### 프로덕션 (권장)
 
-macOS LaunchAgent로 등록하여 노트북을 닫아도 백그라운드에서 실행됩니다.
+터미널에서 zsh alias로 서버와 Cloudflare Tunnel을 백그라운드에서 시작합니다.
 
 ```bash
 # 저장소 클론
-git clone https://github.com/pargame/pocopia.git
-cd pocopia
+git clone https://github.com/pargame/pocopia.git ~/repos/pocopia
+cd ~/repos/pocopia
 
 # 의존성 설치 (uv가 가상환경 자동 생성)
 uv sync
 
-# LaunchAgent 등록 (최초 1회)
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.cloudflared.plist
+# Cloudflare Tunnel 토큰 설정 (운영자 전용)
+cp .env.example .env
+# .env 파일에 CLOUDFLARE_TUNNEL_TOKEN=your_token_here 추가
+
+# .zshrc에 alias 등록 (최초 1회)
+echo 'source $HOME/repos/pocopia/scripts/pokopia.zsh' >> ~/.zshrc
+source ~/.zshrc
 
 # 서버 + Cloudflare Tunnel 시작
 pokopia-start
