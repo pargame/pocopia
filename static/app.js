@@ -19,6 +19,7 @@ let searchKeyword = '';
 let filterMode = 'pinned';
 let cooldownEndTime = parseInt(localStorage.getItem(COOLDOWN_KEY) || '0', 10);
 let cooldownBanner = null;
+let lastFilterMode = filterMode;
 
 // ── localStorage 헬퍼 ──
 const storage = {
@@ -195,6 +196,8 @@ function showMessage(text, type) {
 // ── 목록 ──
 async function fetchIslands() {
     const isMine = filterMode === 'mine';
+    const modeChanged = lastFilterMode !== filterMode;
+    lastFilterMode = filterMode;
     try {
         const [mainRes, mineRes] = await Promise.all([
             fetch(`${API_URL}/islands`),
@@ -204,7 +207,7 @@ async function fetchIslands() {
         const myIslands = await mineRes.json();
         const displayData = isMine ? myIslands : allIslands;
         syncRevealed([...allIslands, ...myIslands].map(i => i.id));
-        if (!dataEqual(islandsData, displayData)) {
+        if (modeChanged || !dataEqual(islandsData, displayData)) {
             renderIslands(displayData, allIslands, myIslands);
         } else {
             updateCounts(allIslands, myIslands);
