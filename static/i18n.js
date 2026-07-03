@@ -234,13 +234,20 @@ function applyTranslations() {
     const refreshHint = document.getElementById('refreshHint');
     if (refreshHint) refreshHint.textContent = t('refreshHint');
 
-    // Filter tabs
-    const filterAll = document.getElementById('filterAll');
-    if (filterAll) filterAll.textContent = t('filterAll');
-    const filterMine = document.getElementById('filterMine');
-    if (filterMine) filterMine.textContent = t('filterMine');
-    const filterPinned = document.getElementById('filterPinned');
-    if (filterPinned) filterPinned.textContent = t('filterPinned');
+    // Filter tabs (keep the count span inside)
+    function setFilterTabText(id, text) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const countSpan = el.querySelector('.tab-count');
+        el.textContent = text;
+        if (countSpan) {
+            el.appendChild(document.createTextNode(' '));
+            el.appendChild(countSpan);
+        }
+    }
+    setFilterTabText('filterAll', t('filterAll'));
+    setFilterTabText('filterMine', t('filterMine'));
+    setFilterTabText('filterPinned', t('filterPinned'));
 
     // Delete all button
     const deleteAllBtn = document.getElementById('deleteAllMineBtn');
