@@ -1,37 +1,78 @@
 # ── Pokopia 서버 관리 zsh alias ──
 # 사용법: ~/.zshrc 맨 아래에 아래 한 줄 추가
-# source /Users/pargame/repos/pocopia/scripts/pokopia.zsh
+# source $HOME/repos/pocopia/scripts/pokopia.zsh
+
+POKOPIA_DIR="$HOME/repos/pocopia"
+
+# .env에서 Cloudflare Tunnel 토큰 로드
+if [ -f "$POKOPIA_DIR/.env" ]; then
+    export $(grep -v '^#' "$POKOPIA_DIR/.env" | xargs)
+fi
 
 _pokopia_gunicorn_start() {
-    if ! launchctl print gui/$(id -u)/com.pokopia.gunicorn 2>/dev/null | grep -q "path ="; then
-        launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.gunicorn.plist
+    # 실제 HTTP 응답까지 확인해서 좀비 프로세스로 인한 오인식 방지
+    if pgrep -f "gunicorn.*app:app" > /dev/null && curl -s -o /dev/null http://127.0.0.1:5000/islands; then
+        echo "[Pokopia] 서버가 이미 실행 중입니다"
+        return 0
     fi
-    launchctl start gui/$(id -u)/com.pokopia.gunicorn
+
+    # 잔여/좀비 프로세스 정리
+    pkill -f "gunicorn.*app:app" 2>/dev/null || true
+    sleep 1
+
+    cd "$POKOPIA_DIR" && nohup "$POKOPIA_DIR/.venv/bin/gunicorn" \
+        -w 2 -b 127.0.0.1:5000 \
+        --access-logfile "$POKOPIA_DIR/gunicorn.log" \
+        --error-logfile "$POKOPIA_DIR/gunicorn.log" \
+        app:app > /dev/null 2>&1 &
+    echo "[Pokopia] 서버 시작 중..."
+
+    # 서버가 실제로 응답할 때까지 최대 10초 대기
+    for i in {1..10}; do
+        if curl -s -o /dev/null http://127.0.0.1:5000/islands; then
+            return 0
+        fi
+        sleep 1
+    done
+
+    echo "[Pokopia] 서버 시작 실패"
+    return 1
 }
 
 _pokopia_gunicorn_stop() {
-    launchctl bootout gui/$(id -u)/com.pokopia.gunicorn 2>/dev/null || true
+    pkill -f "gunicorn.*app:app" 2>/dev/null || true
 }
 
 _pokopia_tunnel_start() {
-    if ! launchctl print gui/$(id -u)/com.pokopia.cloudflared 2>/dev/null | grep -q "path ="; then
-        launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pokopia.cloudflared.plist
+    if pgrep -f "cloudflared tunnel run.*pokoclouds" > /dev/null; then
+        echo "[Pokopia] Tunnel이 이미 실행 중입니다"
+        return 0
     fi
-    launchctl start gui/$(id -u)/com.pokopia.cloudflared
+    if [ -z "$CLOUDFLARE_TUNNEL_TOKEN" ]; then
+        echo "[Pokopia] CLOUDFLARE_TUNNEL_TOKEN이 설정되지 않았습니다. .env 파일을 확인하세요."
+        return 1
+    fi
+    cd "$POKOPIA_DIR" && nohup /opt/homebrew/bin/cloudflared tunnel run \
+        --token "$CLOUDFLARE_TUNNEL_TOKEN" \
+        pokoclouds > "$POKOPIA_DIR/cloudflared.log" 2>&1 &
+    echo "[Pokopia] Tunnel 시작 중..."
 }
 
 _pokopia_tunnel_stop() {
-    launchctl bootout gui/$(id -u)/com.pokopia.cloudflared 2>/dev/null || true
+    pkill -f "cloudflared tunnel run.*pokoclouds" 2>/dev/null || true
 }
 
 pokopia-start() {
     _pokopia_gunicorn_start
+    sleep 1
     _pokopia_tunnel_start
+    sleep 2
     echo "[Pokopia] 서버와 Tunnel 시작됨 → https://pokoclouds.com"
 }
 
 pokopia-stop() {
     _pokopia_gunicorn_stop
+    sleep 1
     _pokopia_tunnel_stop
     echo "[Pokopia] 서버와 Tunnel 종료됨"
 }
@@ -67,10 +108,16 @@ pokopia-alert-off() {
 }
 
 pokopia-status() {
-    echo "[Pokopia] 서버 상태:"
-    launchctl print gui/$(id -u)/com.pokopia.gunicorn 2>/dev/null | grep -E "state =|path =" || echo "  중지됨"
-    echo "[Pokopia] Tunnel 상태:"
-    launchctl print gui/$(id -u)/com.pokopia.cloudflared 2>/dev/null | grep -E "state =|path =" || echo "  중지됨"
+    if pgrep -f "gunicorn.*app:app" > /dev/null; then
+        echo "[Pokopia] 서버 상태: 실행 중"
+    else
+        echo "[Pokopia] 서버 상태: 중지됨"
+    fi
+    if pgrep -f "cloudflared tunnel run.*pokoclouds" > /dev/null; then
+        echo "[Pokopia] Tunnel 상태: 실행 중"
+    else
+        echo "[Pokopia] Tunnel 상태: 중지됨"
+    fi
     local maint=$(curl -s http://localhost:5000/maintenance 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('ON' if d['enabled'] else 'OFF')" 2>/dev/null)
     echo "[Pokopia] 예고 문구: ${maint:-확인 불가}"
     echo "[Pokopia] 활성 게시물: $(curl -s http://localhost:5000/islands 2>/dev/null | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null)개"
