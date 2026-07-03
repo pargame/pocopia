@@ -21,7 +21,7 @@ _pokopia_gunicorn_start() {
     sleep 1
 
     cd "$POKOPIA_DIR" && nohup "$POKOPIA_DIR/.venv/bin/gunicorn" \
-        -w 2 -b 127.0.0.1:5000 \
+        -w 1 -b 127.0.0.1:5000 \
         --access-logfile "$POKOPIA_DIR/gunicorn.log" \
         --error-logfile "$POKOPIA_DIR/gunicorn.log" \
         app:app > /dev/null 2>&1 &
