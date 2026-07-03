@@ -326,6 +326,16 @@ header p {
     box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
 }
 
+.tab-count {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-left: 2px;
+}
+
+.filter-tab.active .tab-count {
+    opacity: 1;
+}
+
 .delete-all-btn {
     background: #ff4757;
     color: #fff;

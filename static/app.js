@@ -194,12 +194,21 @@ function showMessage(text, type) {
 
 // ── 목록 ──
 async function fetchIslands() {
-    const endpoint = filterMode === 'mine' ? `${API_URL}/islands/me` : `${API_URL}/islands`;
+    const isMine = filterMode === 'mine';
     try {
-        const res = await fetch(endpoint);
-        const data = await res.json();
-        syncRevealed(data.map(i => i.id));
-        if (!dataEqual(islandsData, data)) renderIslands(data);
+        const [mainRes, mineRes] = await Promise.all([
+            fetch(`${API_URL}/islands`),
+            fetch(`${API_URL}/islands/me`)
+        ]);
+        const allIslands = await mainRes.json();
+        const myIslands = await mineRes.json();
+        const displayData = isMine ? myIslands : allIslands;
+        syncRevealed([...allIslands, ...myIslands].map(i => i.id));
+        if (!dataEqual(islandsData, displayData)) {
+            renderIslands(displayData, allIslands, myIslands);
+        } else {
+            updateCounts(allIslands, myIslands);
+        }
     } catch (err) { console.error('fetch failed:', err); }
 }
 
@@ -211,7 +220,7 @@ function dataEqual(a, b) {
     return true;
 }
 
-function renderIslands(data) {
+function renderIslands(data, allIslands = data, myIslands = []) {
     islandsData = data;
     islandTimers = {};
     data.forEach(island => {
@@ -233,6 +242,7 @@ function renderIslands(data) {
     const cooling = isCooldownActive();
 
     countEl.textContent = `(${filtered.length})`;
+    updateCounts(allIslands, myIslands);
 
     if (!data.length) {
         container.innerHTML = `<p class="empty">${esc(t(filterMode === 'mine' ? 'emptyMyMsg' : 'emptyMsg'))}</p>`;
@@ -265,6 +275,15 @@ function renderIslands(data) {
 
     if (cooling) document.querySelectorAll('.island-card').forEach(c => c.classList.add('cooldown'));
     startCountdown();
+}
+
+function updateCounts(allIslands, myIslands) {
+    const pinnedCount = allIslands.filter(i => i.is_pinned).length;
+    const userCount = allIslands.filter(i => !i.is_pinned).length;
+    const mineCount = myIslands.length;
+    document.getElementById('countPinned').textContent = `(${pinnedCount})`;
+    document.getElementById('countAll').textContent = `(${userCount})`;
+    document.getElementById('countMine').textContent = `(${mineCount})`;
 }
 
 function reRenderFromCache() {
