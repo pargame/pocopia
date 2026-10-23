@@ -29,6 +29,7 @@ env/
 # Environment variables
 .env
 .env.local
+.env.*
 .env.*.local
 
 # IDE
@@ -37,6 +38,8 @@ env/
 *.swp
 *.swo
 *~
+.agents/
+.cache/
 
 # macOS
 .DS_Store
@@ -45,6 +48,7 @@ env/
 
 # Cloudflare Tunnel credentials (sensitive)
 cloudflared-credentials.json
+*credential*
 *.pem
 *.key
 

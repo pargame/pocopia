@@ -78,10 +78,14 @@ pokopia-stop() {
 }
 
 pokopia-alert() {
+    if [ -z "$ADMIN_TOKEN" ]; then
+        echo "[Pokopia] ADMIN_TOKEN이 설정되지 않았습니다. .env 파일을 확인하세요."
+        return 1
+    fi
     echo "[Pokopia] 예고 문구를 켜는 중..."
     local res=$(curl -s -w "\n%{http_code}" -X POST http://localhost:5000/maintenance \
       -H "Content-Type: application/json" \
-      -H "X-Admin-Token: pokopia-admin-2026" \
+      -H "X-Admin-Token: $ADMIN_TOKEN" \
       -d '{"enabled":true}')
     local code=$(echo "$res" | tail -1)
     if [ "$code" = "200" ]; then
@@ -93,10 +97,14 @@ pokopia-alert() {
 }
 
 pokopia-alert-off() {
+    if [ -z "$ADMIN_TOKEN" ]; then
+        echo "[Pokopia] ADMIN_TOKEN이 설정되지 않았습니다. .env 파일을 확인하세요."
+        return 1
+    fi
     echo "[Pokopia] 예고 문구를 끄는 중..."
     local res=$(curl -s -w "\n%{http_code}" -X POST http://localhost:5000/maintenance \
       -H "Content-Type: application/json" \
-      -H "X-Admin-Token: pokopia-admin-2026" \
+      -H "X-Admin-Token: $ADMIN_TOKEN" \
       -d '{"enabled":false}')
     local code=$(echo "$res" | tail -1)
     if [ "$code" = "200" ]; then

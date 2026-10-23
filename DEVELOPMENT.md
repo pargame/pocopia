@@ -137,7 +137,7 @@ pokopia-stop
 | 항목 | 상태 |
 |------|------|
 | DELETE 인증 | ✅ 작성자 IP 일치 확인 |
-| maintenance | ✅ `X-Admin-Token` 헤더 필요 (토큰: `pokopia-admin-2026`) |
+| maintenance | ✅ `X-Admin-Token` 헤더 필요 (`.env`의 `ADMIN_TOKEN`) |
 | IP 스푸핑 | Cloudflare Tunnel 환경에서는 무시 가능 |
 
 ---

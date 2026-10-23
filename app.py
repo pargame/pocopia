@@ -1,9 +1,22 @@
+import os
+import hmac
+from pathlib import Path
 from flask import Flask, jsonify, request, send_from_directory
 from datetime import datetime, timedelta, timezone
 import uuid
 import re
 import threading
 import time
+
+# .env 파일 로드 (환경변수 미설정 시 기본 로드)
+env_file = Path(__file__).resolve().parent / ".env"
+if env_file.exists():
+    with open(env_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip())
 
 app = Flask(__name__, static_folder="static")
 
@@ -14,7 +27,7 @@ MAX_ISLANDS_PER_IP = 2
 COOLDOWN_SECONDS = 30
 VALID_DURATIONS = {60, 300, 1800, 3600}
 CODE_PATTERN = re.compile(r"^[A-HJ-NP-Y0-9]{8}$")
-ADMIN_TOKEN = "pokopia-admin-2026"
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN")
 
 # ── 고정 클라우드섬 ──
 PINNED_ISLANDS = [
@@ -30,6 +43,48 @@ PINNED_ISLANDS = [
         "title": "간판 섬",
         "description": "포켓몬 게임에 실제 등장했던 간판을 찍을 수 있습니다.",
         "code": "CS8PGM1V",
+        "duration": 3600,
+    },
+    {
+        "id": "pinned-2",
+        "title": "포켓몬 정보국 타운",
+        "description": "공식 포켓몬 정보국의 커뮤니티 타운입니다.",
+        "code": "PXQCG03S",
+        "duration": 3600,
+    },
+    {
+        "id": "pinned-3",
+        "title": "PokemonXP & Worlds",
+        "description": "세계대회 기념 한정 가구와 트로피가 전시된 곳입니다.",
+        "code": "JW7MXKP2",
+        "duration": 3600,
+    },
+    {
+        "id": "pinned-4",
+        "title": "코로코로 섬",
+        "description": "코로코로 코믹 공식 콜라보 한정 가구 섬입니다.",
+        "code": "MJ6XPRMQ",
+        "duration": 3600,
+    },
+    {
+        "id": "pinned-5",
+        "title": "YUMMYYUMMY 섬",
+        "description": "카페와 레스토랑 테마의 음식 소품이 가득한 섬입니다.",
+        "code": "03X3H83D",
+        "duration": 3600,
+    },
+    {
+        "id": "pinned-6",
+        "title": "EIKO 시티",
+        "description": "방송인 에이코 카노와의 공식 콜라보 도시 섬입니다.",
+        "code": "QBRK7FVM",
+        "duration": 3600,
+    },
+    {
+        "id": "pinned-7",
+        "title": "모든 자연 지형 섬",
+        "description": "사막, 설원 등 모든 지형의 자연물이 모인 섬입니다.",
+        "code": "H2745335",
         "duration": 3600,
     },
 ]
@@ -238,7 +293,8 @@ def get_maintenance():
 
 @app.route("/maintenance", methods=["POST"])
 def set_maintenance():
-    if request.headers.get("X-Admin-Token") != ADMIN_TOKEN:
+    token = request.headers.get("X-Admin-Token") or ""
+    if not ADMIN_TOKEN or not hmac.compare_digest(token, ADMIN_TOKEN):
         return jsonify({"error": "unauthorized"}), 403
     global maintenance_mode
     maintenance_mode = bool((request.get_json() or {}).get("enabled", False))
