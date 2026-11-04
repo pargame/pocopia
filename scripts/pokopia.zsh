@@ -1,8 +1,21 @@
-# ── Pokopia 서버 관리 zsh alias ──
+# Pokopia 서버 관리 zsh alias
 # 사용법: ~/.zshrc 맨 아래에 아래 한 줄 추가
 # source $HOME/repos/pocopia/scripts/pokopia.zsh
 
 POKOPIA_DIR="$HOME/repos/pocopia"
+POKOPIA_LOG_MAX_BYTES=$((5 * 1024 * 1024))
+
+# 로그 파일이 지정 크기(기본 5MB)를 초과하면 직전 본(.old)으로 1세대 로테이션한다.
+_pokopia_rotate_log() {
+    local logfile="$1"
+    if [ -f "$logfile" ]; then
+        local size
+        size=$(stat -f%z "$logfile" 2>/dev/null || echo 0)
+        if [ "$size" -ge "$POKOPIA_LOG_MAX_BYTES" ]; then
+            mv -f "$logfile" "${logfile}.old"
+        fi
+    fi
+}
 
 # .env에서 지정한 키의 값만 읽어 출력한다.
 # 비밀 값이 셸 전역 환경변수로 export되어 모든 하위 프로세스에 노출되는 것을 막기 위해,
@@ -28,6 +41,7 @@ _pokopia_gunicorn_start() {
     pkill -f "gunicorn.*app:app" 2>/dev/null || true
     sleep 1
 
+    _pokopia_rotate_log "$POKOPIA_DIR/gunicorn.log"
     cd "$POKOPIA_DIR" && nohup "$POKOPIA_DIR/.venv/bin/gunicorn" \
         -w 1 -b 127.0.0.1:5000 \
         --access-logfile "$POKOPIA_DIR/gunicorn.log" \
@@ -63,6 +77,7 @@ _pokopia_tunnel_start() {
         return 1
     fi
     # 토큰을 --token 인자로 넘기면 ps 출력에 그대로 노출되므로 TUNNEL_TOKEN 환경변수로 전달한다.
+    _pokopia_rotate_log "$POKOPIA_DIR/cloudflared.log"
     ( cd "$POKOPIA_DIR" && TUNNEL_TOKEN="$token" nohup /opt/homebrew/bin/cloudflared tunnel run \
         pokoclouds > "$POKOPIA_DIR/cloudflared.log" 2>&1 & )
     echo "[Pokopia] Tunnel 시작 중..."

@@ -54,4 +54,5 @@ cloudflared-credentials.json
 
 # Logs
 *.log
+*.log.old
 logs/
