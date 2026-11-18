@@ -56,3 +56,4 @@ cloudflared-credentials.json
 *.log
 *.log.old
 logs/
+.wrangler/

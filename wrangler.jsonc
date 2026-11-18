@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pocopia",
+  "main": "worker/src/index.js",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./static",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "kv_namespaces": [
+    {
+      "binding": "POCOPIA_KV",
+      "id": "cf6bf936e20b4d2e81276a63bf57369a"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "pokoclouds.com/*",
+      "zone_name": "pokoclouds.com"
+    },
+    {
+      "pattern": "www.pokoclouds.com/*",
+      "zone_name": "pokoclouds.com"
+    }
+  ]
+}
