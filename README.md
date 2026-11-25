@@ -156,8 +156,6 @@ pokopia/
 ├── scripts/           # 개발/운영 보조 스크립트
 │   └── pokopia.zsh    # zsh 서버 관리 alias
 ├── .gitignore         # 보안: 민감 파일 제외
-├── pokopia-plan.md    # 프로젝트 계획서
-├── DEVELOPMENT.md     # 개발 가이드
 ├── README.md          # 이 파일
 └── static/
     ├── index.html     # 메인 페이지
