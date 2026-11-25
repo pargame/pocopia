@@ -57,7 +57,3 @@ cloudflared-credentials.json
 *.log.old
 logs/
 .wrangler/
-
-# Internal planning & dev notes (local only)
-DEVELOPMENT.md
-pokopia-plan.md
