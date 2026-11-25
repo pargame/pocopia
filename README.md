@@ -189,7 +189,7 @@ pokopia/
 
 ## 📄 라이선스
 
-MIT License
+코드는 [MIT License](LICENSE)를 따릅니다.
 
 ---
 
