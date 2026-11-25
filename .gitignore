@@ -31,15 +31,21 @@ env/
 .env.local
 .env.*
 .env.*.local
+!.env.example
 
-# IDE
+# IDE & local agent workspaces
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .agents/
+.claude/
+.collab/
+.gemini/
 .cache/
+*.local
+*.local.md
 
 # macOS
 .DS_Store
@@ -49,8 +55,10 @@ env/
 # Cloudflare Tunnel credentials (sensitive)
 cloudflared-credentials.json
 *credential*
+*secret*
 *.pem
 *.key
+*.p12
 
 # Logs
 *.log
